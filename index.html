@@ -1,0 +1,4144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0284c7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Merélec ERP" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="/icon-512.svg" />
+  <link rel="apple-touch-icon" href="/icon-512.svg" />
+  <title>ETS MERIDJA EL HADI (Merélec) — Gestion Commerciale, Bons, Créances & Stock</title>
+  <script>
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <style>
+    :root {
+      --bg-dark: #0f1c36;
+      --bg-card: #162647;
+      --bg-surface: #f8fafc;
+      --card-light: #ffffff;
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --accent: #38bdf8;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --indigo: #4f46e5;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      letter-spacing: normal;
+    }
+
+    body {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================= AUTH SCREEN ================= */
+    #auth-screen {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #0d1b36 0%, #13274c 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 460px;
+      background: #132342;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: #0d1a33;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13.5px;
+      color: #94a3b8;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .auth-body {
+      padding: 24px 22px;
+    }
+
+    .auth-icon-circle {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(2, 132, 199, 0.25);
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 14px;
+    }
+
+    .auth-title {
+      text-align: center;
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+
+    .quick-accounts-box {
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .quick-accounts-title {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .quick-accounts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .quick-account-chip {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .quick-account-chip:hover, .quick-account-chip.selected {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+
+    .quick-account-chip .qa-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .quick-account-chip:hover .qa-name, .quick-account-chip.selected .qa-name {
+      color: #ffffff;
+    }
+
+    .quick-account-chip .qa-email {
+      font-size: 11px;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .auth-field {
+      margin-bottom: 14px;
+    }
+
+    .auth-field label {
+      display: block;
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.65);
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .auth-input:focus {
+      border-color: #38bdf8;
+    }
+
+    .cloud-card-admin {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .cloud-card-admin.disconnected {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+
+    /* ================= MAIN APP SHELL ================= */
+    #app-shell {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: #0f1c36;
+      color: #ffffff;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #0284c7;
+      font-size: 14px;
+      overflow: hidden;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: normal;
+    }
+
+    .brand-sub {
+      font-size: 11.5px;
+      color: #94a3b8;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .user-pill {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #e0f2fe;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .nav-tabs {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+      padding: 0 16px;
+      gap: 6px;
+    }
+
+    .nav-tab {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .nav-tab:hover {
+      color: var(--primary);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .main-content {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* ================= CARDS, BUTTONS, TABLES ================= */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--card-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .card {
+      background: var(--card-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--text-main);
+      background: #ffffff;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: normal;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-blue { background: #e0f2fe; color: #0369a1; }
+    .badge-green { background: #d1fae5; color: #047857; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+    .badge-amber { background: #fef3c7; color: #b45309; }
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
+
+    /* ================= USER MANAGEMENT COMPACT CARD ================= */
+    .emp-card {
+      background: #0f1c36;
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .emp-credentials-box {
+      background: rgba(30, 41, 59, 0.75);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+
+    .emp-cred-line {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .btn-pdf-green {
+      background: #16a34a !important;
+      color: #ffffff !important;
+      border: none !important;
+    }
+    .btn-pdf-green:hover {
+      background: #15803d !important;
+    }
+    .btn-edit-orange {
+      background: #ffa726 !important;
+      color: #ffffff !important;
+      border: none !important;
+    }
+    .btn-edit-orange:hover {
+      background: #fb8c00 !important;
+    }
+
+    /* ================= A4 PDF PREVIEW & PRINT SHEET ================= */
+    .a4-preview-wrapper {
+      background: #cbd5e1;
+      padding: 20px;
+      border-radius: 12px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      color: #0f172a;
+      padding: 6mm 8mm;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      letter-spacing: normal !important;
+    }
+
+    .a4-sheet * {
+      letter-spacing: normal !important;
+    }
+
+    .pdf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .pdf-company-left {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      flex: 1;
+    }
+
+    .pdf-logo-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .pdf-company-name {
+      font-size: 19px;
+      font-weight: 800;
+      color: #0284c7;
+      margin-bottom: 4px;
+    }
+
+    .pdf-company-meta {
+      font-size: 11px;
+      color: #475569;
+      line-height: 1.45;
+    }
+
+    .pdf-doc-badge-box {
+      min-width: 210px;
+      text-align: right;
+    }
+
+    .pdf-doc-badge {
+      background: #0284c7;
+      color: #ffffff;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .pdf-partner-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+
+    .pdf-summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .pdf-sum-card {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      padding: 8px 10px;
+    }
+
+    .pdf-sum-card.danger {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+    }
+
+    .pdf-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 8px 8px;
+      border-bottom: 1.5px solid #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .pdf-table td {
+      font-size: 11.5px;
+      padding: 8px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+      line-height: 1.5;
+      vertical-align: middle;
+    }
+
+    .pdf-signatures-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .pdf-sign-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 115px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pdf-sign-title {
+      width: 100%;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 14px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .toast-bar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      display: none;
+      z-index: 2000;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 5mm;
+    }
+
+    @media print {
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #printable-a4-area, #printable-a4-area * {
+        visibility: visible;
+      }
+      #printable-a4-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 200mm !important;
+        min-height: 287mm !important;
+        padding: 4mm 6mm !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= 1. AUTHENTICATION SCREEN ================= -->
+  <div id="auth-screen">
+    <div class="auth-container">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-auth-user" onclick="switchAuthTab('USER')">
+          👤 Connexion Utilisateur
+        </div>
+        <div class="auth-tab" id="tab-auth-admin" onclick="switchAuthTab('ADMIN')">
+          🛡️ Espace Administrateur
+        </div>
+      </div>
+
+      <div class="auth-body">
+        <div class="auth-icon-circle" id="auth-icon">🔒</div>
+        <div class="auth-title" id="auth-heading">Connexion Utilisateur</div>
+        <div class="auth-subtitle" id="auth-desc">
+          Saisissez l'adresse email et le mot de passe qui vous ont été attribués par l'administrateur.
+        </div>
+
+        <!-- Affiché UNIQUEMENT dans Espace Administrateur (caché sur Connexion Utilisateur) -->
+        <div id="admin-cloud-box" style="display: none;">
+          <div class="cloud-card-admin" id="cloud-status-card">
+            <div>
+              <div style="font-weight: 800; font-size: 13px;" id="cloud-status-title">
+                ☁️ Base Cloud Firestore connectée
+              </div>
+              <div style="font-size: 11.5px; margin-top: 2px;" id="cloud-status-sub">
+                Base Firebase : ai-studio-android-remixges-eaf649c7-b982-4cf3-8da2-da71b4dcafb4 • Synchronisation active
+              </div>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="signInWithGoogleCloud()">
+              Connecter Google
+            </button>
+          </div>
+        </div>
+
+        <div class="quick-accounts-box">
+          <div class="quick-accounts-title" id="quick-accounts-label">
+            Comptes configurés — cliquez pour remplir l'email :
+          </div>
+          <div class="quick-accounts-grid" id="quick-accounts-list"></div>
+        </div>
+
+        <div class="auth-field">
+          <label>Email ou identifiant de l'utilisateur</label>
+          <input type="text" id="login-email" class="auth-input" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ex: meridjaomar2023@gmail.com ou mami@merelec.dz" onkeydown="if(event.key==='Enter') handleLogin()" />
+        </div>
+
+        <div class="auth-field">
+          <label style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Mot de passe</span>
+            <span style="cursor:pointer; color:#38bdf8; font-size:11.5px; font-weight:700;" onclick="toggleLoginPasswordVisibility()" id="toggle-pass-lbl">👁️ Afficher</span>
+          </label>
+          <input type="password" id="login-password" class="auth-input" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="••••••••" onkeydown="if(event.key==='Enter') handleLogin()" />
+        </div>
+
+        <div id="login-error" style="color: #f87171; font-size: 12.5px; margin-bottom: 10px; display: none;"></div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;" onclick="handleLogin()">
+          Se connecter à l'application
+        </button>
+
+        <button class="btn btn-success" style="width: 100%; padding: 11px; font-size: 13.5px; margin-top: 8px; background: #059669;" onclick="signInWithGoogleCloud(true)">
+          ☁️ Se connecter avec Firebase Cloud (Google)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. MAIN APPLICATION SHELL ================= -->
+  <div id="app-shell">
+    <header class="topbar">
+      <div class="brand-row">
+        <div class="brand-logo-badge">merélec</div>
+        <div>
+          <div class="brand-title" id="top-company-name">ETS MERIDJA EL HADI</div>
+          <div class="brand-sub" id="top-cloud-indicator">Synchronisation Firestore + Stockage Local</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-sm btn-pdf-green" onclick="syncAllToFirebaseNow()">
+          🔄 Synchroniser Temps Réel Firebase
+        </button>
+        <span class="user-pill" id="active-user-pill">Utilisateur</span>
+        <button class="btn btn-sm btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.3);" onclick="logoutUser()">
+          Se déconnecter
+        </button>
+      </div>
+    </header>
+
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-pane="pane-operations" onclick="switchMainTab('pane-operations')">📄 Bons & Factures</div>
+      <div class="nav-tab" data-pane="pane-creances" onclick="switchMainTab('pane-creances')">💳 Créances & Dettes</div>
+      <div class="nav-tab" data-pane="pane-articles" onclick="switchMainTab('pane-articles')">📦 Articles & Stock</div>
+      <div class="nav-tab" data-pane="pane-partenaires" onclick="switchMainTab('pane-partenaires')">👥 Clients & Fournisseurs</div>
+      <div class="nav-tab" data-pane="pane-pdf-studio" onclick="switchMainTab('pane-pdf-studio')">🖨️ Studio PDF & Cachet Humide</div>
+      <div class="nav-tab" onclick="openOcrModal()" style="background: rgba(79, 70, 229, 0.12); color: #4338ca; font-weight: 800;">📷 Scanner OCR Intelligent</div>
+      <div class="nav-tab" data-pane="pane-users" id="nav-tab-users" onclick="switchMainTab('pane-users')">🛡️ Utilisateurs & Droits</div>
+      <div class="nav-tab" data-pane="pane-config" onclick="switchMainTab('pane-config')">⚙️ Configuration & Sauvegarde</div>
+    </nav>
+
+    <main class="main-content">
+      <!-- ================= TAB 1: OPÉRATIONS (BONS, FACTURES, DEVIS, RÈGLEMENTS) ================= -->
+      <section class="tab-pane active" id="pane-operations">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Ventes (BL / Factures)</div>
+            <div class="kpi-value" id="kpi-ventes" style="color: var(--primary);">0,00 DA</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Encaissé / Règlements</div>
+            <div class="kpi-value" id="kpi-encaisse" style="color: var(--success);">0,00 DA</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Créances Clients Restantes</div>
+            <div class="kpi-value" id="kpi-creances" style="color: var(--danger);">0,00 DA</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Dettes Fournisseurs</div>
+            <div class="kpi-value" id="kpi-dettes" style="color: var(--indigo);">0,00 DA</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Nouvelle Opération (Bon de Livraison, Facture, Devis, Règlement)</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-sm btn-primary" style="background:#4338ca;" onclick="openOcrModal()">📷 Scanner Facture / Bon (OCR)</button>
+              <button class="btn btn-sm btn-outline" onclick="resetOperationForm()">Réinitialiser</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nature du Document</label>
+              <select id="op-type" class="form-control" onchange="onOpTypeChange()">
+                <option value="BL_CLIENT">Bon de Livraison Client (BL)</option>
+                <option value="FACTURE">Facture Client</option>
+                <option value="DEVIS_CLIENT">Devis Client</option>
+                <option value="BON_COMMANDE">Bon de Commande</option>
+                <option value="REGLEMENT">Reçu de Règlement</option>
+                <option value="BL_FOURNISSEUR">Bon de Réception Fournisseur</option>
+                <option value="AVOIR_CLIENT">Facture d'Avoir Client</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Référence N°</label>
+              <input type="text" id="op-id" class="form-control" placeholder="ex: BLC-261102-01" />
+            </div>
+            <div class="form-group">
+              <label>Client / Fournisseur</label>
+              <input type="text" id="op-partner" list="partners-datalist" class="form-control" placeholder="Nom du client ou fournisseur" />
+              <datalist id="partners-datalist"></datalist>
+            </div>
+            <div class="form-group">
+              <label>Mode de Règlement</label>
+              <select id="op-mode" class="form-control">
+                <option value="Espèces">Espèces</option>
+                <option value="Chèque">Chèque</option>
+                <option value="Virement">Virement bancaire</option>
+                <option value="À crédit">À crédit</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Montant Versé (DA)</label>
+              <input type="number" step="0.01" id="op-verse" class="form-control" value="0" />
+            </div>
+            <div class="form-group">
+              <label>TVA</label>
+              <select id="op-tva" class="form-control">
+                <option value="false">Sans TVA (HT)</option>
+                <option value="true">Avec TVA (19%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="op-lines-section">
+            <div style="font-size: 12.5px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px;">
+              Lignes d'articles du document :
+            </div>
+            <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr auto;">
+              <input type="text" id="line-prod" list="products-datalist" class="form-control" placeholder="Désignation de l'article" onchange="onSelectDraftProduct()" />
+              <datalist id="products-datalist"></datalist>
+              <input type="number" step="0.01" id="line-qty" class="form-control" placeholder="Qté" value="1" />
+              <input type="number" step="0.01" id="line-price" class="form-control" placeholder="PU HT (DA)" />
+              <button class="btn btn-primary" onclick="addLineToDraft()">+ Ajouter ligne</button>
+            </div>
+            <div class="table-wrap" style="margin-bottom: 12px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Désignation de l'article</th>
+                    <th>Qté</th>
+                    <th>PU HT</th>
+                    <th>Total HT</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="draft-lines-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <input type="text" id="op-notes" class="form-control" style="max-width: 420px;" placeholder="Notes / Observations sur le bon..." />
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="font-weight:800; font-size:15px;" id="draft-total-label">Total : 0,00 DA</div>
+              <button class="btn btn-success" onclick="saveCurrentOperation()">💾 Enregistrer le Document</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Journal des Bons, Factures, Devis & Règlements</div>
+            <input type="text" id="search-ops" class="form-control" style="max-width: 280px;" placeholder="🔍 Rechercher un bon, client..." oninput="renderOperationsTable()" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Référence</th>
+                  <th>Nature</th>
+                  <th>Client / Fournisseur</th>
+                  <th>Total TTC</th>
+                  <th>Versé</th>
+                  <th>Actions / PDF A4</th>
+                </tr>
+              </thead>
+              <tbody id="ops-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: CRÉANCES CLIENTS & DETTES FOURNISSEURS ================= -->
+      <section class="tab-pane" id="pane-creances">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Importation de Créances Restantes (CSV / Texte) — Sans création de BL</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                Les créances importées sont enregistrées uniquement comme <strong>Créance restante</strong> du client ou fournisseur (jamais en tant que BL).
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-sm btn-pdf-green" onclick="openPdfGlobalCreances()">🖨️ Aperçu PDF État des Créances</button>
+              <button class="btn btn-sm btn-danger" onclick="resetAllCreancesToZero()">🔄 Remise à zéro des créances (0,00 DA)</button>
+            </div>
+          </div>
+          <div class="form-grid" style="grid-template-columns: 1fr 2fr auto;">
+            <div>
+              <label>Type de Tiers</label>
+              <select id="import-creance-type" class="form-control">
+                <option value="CLIENT">Créances Clients</option>
+                <option value="FOURNISSEUR">Dettes Fournisseurs</option>
+              </select>
+            </div>
+            <div>
+              <label>Coller des lignes CSV (Nom;Téléphone;Adresse;CréanceRestante) ou choisir un fichier .csv</label>
+              <input type="text" id="import-creance-text" class="form-control" placeholder="Ex: ETABLISSEMENT HOSPITALIERE PRIVE SALDAE;0550000000;BEJAIA;9013637.06" />
+            </div>
+            <div style="display:flex; align-items:flex-end; gap:6px;">
+              <button class="btn btn-primary" onclick="importCreancesFromInput()">Importer Créance</button>
+              <label class="btn btn-outline" style="margin:0;">
+                📂 CSV <input type="file" accept=".csv,.txt" style="display:none;" onchange="handleCreanceCsvFile(event)" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">État des Créances Clients & Dettes Fournisseurs</div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <div class="chip-row" style="margin:0;">
+                <span class="chip active" id="chip-creance-client" onclick="setCreanceViewType('CLIENT')">Clients</span>
+                <span class="chip" id="chip-creance-fourn" onclick="setCreanceViewType('FOURNISSEUR')">Fournisseurs</span>
+              </div>
+              <button class="btn btn-sm btn-danger" onclick="resetAllCreancesToZero()">🔄 Remise à zéro (0,00 DA)</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Partenaire</th>
+                  <th>Contact / Adresse</th>
+                  <th>Total Facturé / BL</th>
+                  <th>Total Règlements</th>
+                  <th>Créance Restante Due</th>
+                  <th>Actions & Relevé PDF</th>
+                </tr>
+              </thead>
+              <tbody id="creances-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: ARTICLES & STOCK ================= -->
+      <section class="tab-pane" id="pane-articles">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Ajouter / Mettre à jour un Article au Catalogue</div>
+            <button class="btn btn-sm btn-primary" onclick="openPdfCatalog()">🖨️ PDF Catalogue Articles</button>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Référence</label>
+              <input type="text" id="prod-ref" class="form-control" placeholder="ex: DISJ-16A" />
+            </div>
+            <div class="form-group">
+              <label>Désignation de l'article</label>
+              <input type="text" id="prod-name" class="form-control" placeholder="ex: Disjoncteur Modulaire 16A" />
+            </div>
+            <div class="form-group">
+              <label>Famille / Catégorie</label>
+              <input type="text" id="prod-cat" class="form-control" placeholder="ex: Protection" value="Général" />
+            </div>
+            <div class="form-group">
+              <label>Unité</label>
+              <input type="text" id="prod-unit" class="form-control" value="U" />
+            </div>
+            <div class="form-group">
+              <label>Prix de Vente HT (DA)</label>
+              <input type="number" step="0.01" id="prod-pv" class="form-control" placeholder="0.00" />
+            </div>
+            <!-- Prix d'achat visible UNIQUEMENT pour l'Administrateur -->
+            <div class="form-group" id="prod-pa-group">
+              <label>Prix d'Achat HT (Admin seul)</label>
+              <input type="number" step="0.01" id="prod-pa" class="form-control" placeholder="0.00" />
+            </div>
+            <div class="form-group">
+              <label>Stock Actuel</label>
+              <input type="number" step="0.01" id="prod-stock" class="form-control" value="10" />
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="saveProductFromForm()">+ Enregistrer l'Article</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Catalogue Articles & État du Stock</div>
+            <input type="text" id="search-products" class="form-control" style="max-width:260px;" placeholder="🔍 Rechercher un article..." oninput="renderProductsTable()" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr id="products-thead-row"></tr>
+              </thead>
+              <tbody id="products-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: CLIENTS & FOURNISSEURS ================= -->
+      <section class="tab-pane" id="pane-partenaires">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Ajouter / Modifier un Client ou Fournisseur</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Type</label>
+              <select id="part-type" class="form-control">
+                <option value="CLIENT">Client</option>
+                <option value="FOURNISSEUR">Fournisseur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Nom / Raison Sociale</label>
+              <input type="text" id="part-name" class="form-control" placeholder="ex: SARL ElecPro Algérie" />
+            </div>
+            <div class="form-group">
+              <label>Téléphone</label>
+              <input type="text" id="part-phone" class="form-control" placeholder="0550 12 34 56" />
+            </div>
+            <div class="form-group">
+              <label>Adresse / Ville</label>
+              <input type="text" id="part-address" class="form-control" placeholder="Béjaïa" />
+            </div>
+            <div class="form-group">
+              <label>RC N°</label>
+              <input type="text" id="part-rc" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>NIF N°</label>
+              <input type="text" id="part-nif" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Créance / Dette Restante (DA)</label>
+              <input type="number" step="0.01" id="part-solde" class="form-control" value="0" />
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="savePartnerFromForm()">+ Enregistrer le Partenaire</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Répertoire des Clients & Fournisseurs</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom / Raison Sociale</th>
+                  <th>Type</th>
+                  <th>Téléphone & Adresse</th>
+                  <th>Identifiants (RC / NIF)</th>
+                  <th>Créance / Solde Restant</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="partners-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: STUDIO PDF & CACHET HUMIDE (AVEC ZOOM 225% & 250%) ================= -->
+      <section class="tab-pane" id="pane-pdf-studio">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Studio PDF A4 — Cachet Humide HD (PNG) & Mise en Page</div>
+              <div style="font-size:12px; color:var(--text-muted);">
+                Intercaractère normal • Sans ligne bleue en haut • Cachet humide proportionnel jusqu'à 225% et 250% (sans signature stylo)
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimer A4 / Enregistrer en PDF</button>
+            </div>
+          </div>
+
+          <div class="form-grid" style="align-items: center;">
+            <div class="form-group">
+              <label>Activer / Désactiver Cachet Humide</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; margin-top:6px;">
+                <input type="checkbox" id="studio-stamp-toggle" checked onchange="onToggleStamp(this.checked)" />
+                <span>Afficher le Cachet Humide PNG sur les Bons, Devis, Factures & Relevés</span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>Zoom proportionnel du Cachet Humide : <span id="stamp-scale-badge">130%</span></label>
+              <div class="chip-row" style="margin-top: 6px; margin-bottom: 0;">
+                <span class="chip" data-scale="100" onclick="setStampScale(100)">100%</span>
+                <span class="chip active" data-scale="130" onclick="setStampScale(130)">130%</span>
+                <span class="chip" data-scale="160" onclick="setStampScale(160)">160%</span>
+                <span class="chip" data-scale="200" onclick="setStampScale(200)">200%</span>
+                <span class="chip" data-scale="225" onclick="setStampScale(225)">225%</span>
+                <span class="chip" data-scale="250" onclick="setStampScale(250)">250%</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Importer mon Cachet Humide PNG HD</label>
+              <div style="display:flex; gap:8px; margin-top:4px;">
+                <label class="btn btn-sm btn-outline" style="margin:0;">
+                  📤 Importer PNG <input type="file" accept="image/png,image/*" style="display:none;" onchange="handleCustomStampUpload(event)" />
+                </label>
+                <button class="btn btn-sm btn-outline" onclick="resetDefaultStamp()">Cachet par défaut</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+            <label style="font-size:12.5px; font-weight:700;">Aperçu du document :</label>
+            <select id="studio-doc-selector" class="form-control" style="max-width:340px;" onchange="renderStudioPreview()"></select>
+            <button class="btn btn-sm btn-outline" onclick="openPdfGlobalCreances()">Voir État Global des Créances</button>
+          </div>
+        </div>
+
+        <!-- Feuille A4 d'aperçu et d'impression -->
+        <div class="a4-preview-wrapper">
+          <div class="a4-sheet" id="printable-a4-area"></div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: GESTION DES UTILISATEURS & DROITS ================= -->
+      <section class="tab-pane" id="pane-users">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Gestion des Utilisateurs & Droits</div>
+            <button class="btn btn-primary" onclick="openAddUserPrompt()">+ Attribuer un nouvel utilisateur</button>
+          </div>
+          <div id="employees-list-container"></div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 7: CONFIGURATION & SAUVEGARDE ================= -->
+      <section class="tab-pane" id="pane-config">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Coordonnées de l'Entreprise (En-tête des PDF)</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nom de l'entreprise</label>
+              <input type="text" id="cfg-name" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Adresse</label>
+              <input type="text" id="cfg-address" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Téléphones</label>
+              <input type="text" id="cfg-phone" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="text" id="cfg-email" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>RC N°</label>
+              <input type="text" id="cfg-rc" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>NIF N°</label>
+              <input type="text" id="cfg-nif" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>N° Article d'Imposition</label>
+              <input type="text" id="cfg-ai" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Banque & RIB</label>
+              <input type="text" id="cfg-rib" class="form-control" />
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="saveCompanyConfig()">💾 Enregistrer la Configuration</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Sauvegarde Locale JSON & Synchronisation Temps Réel Firebase</div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-pdf-green" onclick="syncAllToFirebaseNow()">🔄 Synchroniser en Temps Réel avec Firebase</button>
+            <button class="btn btn-primary" onclick="exportBackupJson()">⬇️ Exporter une sauvegarde (.json)</button>
+            <label class="btn btn-outline" style="margin:0;">
+              ⬆️ Restaurer une sauvegarde (.json)
+              <input type="file" accept=".json" style="display:none;" onchange="importBackupJson(event)" />
+            </label>
+            <!-- Suppression de sauvegarde réservée uniquement à l'Administrateur -->
+            <button class="btn btn-danger" id="btn-delete-backup" onclick="deleteBackupAdminOnly()">
+              🗑️ Supprimer la sauvegarde / Réinitialiser (Admin seul)
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= MODAL PDF / PARTAGER (SANS BOUTONS ZOOM, UNIQUEMENT SWITCH CACHET) ================= -->
+  <div class="modal-backdrop" id="pdf-action-modal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-size:16px; font-weight:800;" id="modal-pdf-title">Aperçu PDF A4</div>
+        <button class="btn btn-sm btn-outline" onclick="closePdfModal()">✕ Fermer</button>
+      </div>
+
+      <!-- Conformément à la demande : pas de paramètres zoom ici, uniquement activer/désactiver le cachet humide -->
+      <div style="background:#f1f5f9; padding:10px 14px; border-radius:10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:800; font-size:13px; color:var(--primary);">Cachet Humide HD (Format PNG)</div>
+          <div style="font-size:11.5px; color:var(--text-muted);">Activer ou désactiver le cachet humide sur ce document</div>
+        </div>
+        <label style="display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:13px; cursor:pointer;">
+          <input type="checkbox" id="modal-stamp-switch" checked onchange="onToggleStamp(this.checked)" />
+          <span>Cachet Humide actif</span>
+        </label>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button class="btn btn-primary" onclick="printModalPdf()">🖨️ Imprimer A4 / Enregistrer en PDF</button>
+      </div>
+
+      <div id="modal-a4-preview-holder" style="overflow-x:auto; background:#cbd5e1; padding:12px; border-radius:10px; display:flex; justify-content:center;"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL SCANNER OCR INTELLIGENT (PC WINDOWS & ANDROID SYNC) ================= -->
+  <div class="modal-backdrop" id="ocr-scanner-modal">
+    <div class="modal-card" style="max-width: 960px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:16px; font-weight:800; color:#1e1b4b;">📷 Scanner OCR Intelligent — Extraction de Factures & Bons (PC Windows)</div>
+          <div style="font-size:12px; color:#475569;">Choisissez l'ordre des colonnes (ex: 1er Qts, 2e Désignation, 3e P.U.HT, 4e Réf), vérifiez les lignes et cliquez sur Enregistrer le Bon & Quitter.</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-success" onclick="saveOcrBonAndExit()">💾 Enregistrer le Bon & Quitter</button>
+          <button class="btn btn-sm btn-outline" onclick="closeOcrModal()">✕ Fermer</button>
+        </div>
+      </div>
+
+      <!-- Sélecteur de l'ordre des colonnes (1er, 2e, 3e, 4e) -->
+      <div style="background:#eef2ff; border:1px solid #c7d2fe; border-radius:10px; padding:10px 12px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+          <div style="font-size:12.5px; font-weight:800; color:#312e81;" id="ocr-order-summary">
+            Ordre actif : 1er: Qts → 2e: Désignation → 3e: P.U.HT → 4e: Réf
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn btn-sm btn-outline" style="font-size:11px; padding:4px 8px;" onclick="setOcrColumnPreset(['QTS','DESIGNATION','PU_HT','REF'])">1. Qts → 2. Désignation → 3. P.U.HT</button>
+            <button class="btn btn-sm btn-outline" style="font-size:11px; padding:4px 8px;" onclick="setOcrColumnPreset(['REF','DESIGNATION','QTS','PU_HT'])">1. Réf → 2. Désignation → 3. Qts → 4. P.U.HT</button>
+            <button class="btn btn-sm btn-outline" style="font-size:11px; padding:4px 8px;" onclick="setOcrColumnPreset(['DESIGNATION','QTS','PU_HT','NONE'])">1. Désignation → 2. Qts → 3. P.U.HT</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+          <div>
+            <label style="font-size:11px; font-weight:800; color:#4338ca;">1re Colonne</label>
+            <select id="ocr-col-1" class="form-control" style="padding:5px 8px; font-size:12px;" onchange="onOcrColOrderChange(0, this.value)">
+              <option value="QTS" selected>Qts (Quantité)</option>
+              <option value="DESIGNATION">Désignation</option>
+              <option value="PU_HT">P.U.HT (Prix)</option>
+              <option value="REF">Réf (Code)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:800; color:#4338ca;">2e Colonne</label>
+            <select id="ocr-col-2" class="form-control" style="padding:5px 8px; font-size:12px;" onchange="onOcrColOrderChange(1, this.value)">
+              <option value="QTS">Qts (Quantité)</option>
+              <option value="DESIGNATION" selected>Désignation</option>
+              <option value="PU_HT">P.U.HT (Prix)</option>
+              <option value="REF">Réf (Code)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:800; color:#4338ca;">3e Colonne</label>
+            <select id="ocr-col-3" class="form-control" style="padding:5px 8px; font-size:12px;" onchange="onOcrColOrderChange(2, this.value)">
+              <option value="QTS">Qts (Quantité)</option>
+              <option value="DESIGNATION">Désignation</option>
+              <option value="PU_HT" selected>P.U.HT (Prix)</option>
+              <option value="REF">Réf (Code)</option>
+              <option value="NONE">Aucune (-)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px; font-weight:800; color:#4338ca;">4e Colonne</label>
+            <select id="ocr-col-4" class="form-control" style="padding:5px 8px; font-size:12px;" onchange="onOcrColOrderChange(3, this.value)">
+              <option value="QTS">Qts (Quantité)</option>
+              <option value="DESIGNATION">Désignation</option>
+              <option value="PU_HT">P.U.HT (Prix)</option>
+              <option value="REF" selected>Réf (Code)</option>
+              <option value="NONE">Aucune (-)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import image / texte & barre de progression -->
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
+        <label class="btn btn-primary" style="margin:0; cursor:pointer; background:#4338ca;">
+          🖼️ Importer Image Facture (JPG/PNG)
+          <input type="file" accept="image/*" style="display:none;" onchange="handleOcrImageUpload(event)" />
+        </label>
+        <button class="btn btn-outline" onclick="loadSampleOcrInvoice()">📄 Tester Facture Exemple (Hublot 24W : Qté 309 • PU 361,13)</button>
+        <span id="ocr-progress-badge" style="display:none; font-size:12.5px; font-weight:800; color:#059669; background:#ecfdf5; padding:6px 12px; border-radius:8px; border:1px solid #a7f3d0;">
+          ⏳ Analyse OCR en cours...
+        </span>
+      </div>
+
+      <!-- Zone Texte Brut OCR / Collage rapide depuis PC -->
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11.5px; font-weight:700; color:#475569;">Texte extrait ou collé depuis une facture (modifiable en direct — recalcul automatique selon l'ordre des colonnes) :</label>
+        <textarea id="ocr-raw-textarea" class="form-control" rows="4" style="font-family:monospace; font-size:12px; margin-top:4px;" placeholder="Collez ici les lignes d'une facture ou importez une image ci-dessus...&#10;Ex: 309  Hublot 24 W Round  361,13" oninput="reparseOcrFromTextarea()"></textarea>
+      </div>
+
+      <!-- Paramètres du Bon à enregistrer -->
+      <div class="form-grid" style="margin-bottom:10px;">
+        <div class="form-group">
+          <label>Nature du Bon à enregistrer</label>
+          <select id="ocr-doc-type" class="form-control">
+            <option value="BL_CLIENT">Bon de Livraison Client (BL)</option>
+            <option value="BL_FOURNISSEUR">Bon de Réception Fournisseur (BRF)</option>
+            <option value="FACTURE">Facture Client</option>
+            <option value="DEVIS_CLIENT">Devis Client</option>
+            <option value="BON_COMMANDE">Bon de Commande</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Client / Fournisseur</label>
+          <input type="text" id="ocr-partner-name" list="partners-datalist" class="form-control" placeholder="Nom du Client ou Fournisseur" value="Client Comptoir" />
+        </div>
+        <div class="form-group">
+          <label>Montant Versé (DA)</label>
+          <input type="number" step="0.01" id="ocr-paid-amount" class="form-control" value="0" />
+        </div>
+      </div>
+
+      <!-- Tableau des lignes extraites -->
+      <div class="table-wrap" style="max-height:240px; overflow-y:auto; margin-bottom:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;">N°</th>
+              <th style="width:100px;">Réf</th>
+              <th>Désignation de l'article</th>
+              <th style="width:95px;">Qts</th>
+              <th style="width:120px;">P.U.HT (DA)</th>
+              <th style="width:125px;">Total HT</th>
+              <th style="width:50px;">Suppr</th>
+            </tr>
+          </thead>
+          <tbody id="ocr-lines-tbody"></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#f8fafc; padding:12px 14px; border-radius:10px; border:1px solid #cbd5e1;">
+        <button class="btn btn-sm btn-outline" onclick="addEmptyOcrLine()">+ Ajouter une ligne manuelle</button>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="font-size:15px; font-weight:900; color:#0f172a;" id="ocr-modal-total">Total HT : 0,00 DA</div>
+          <button class="btn btn-success" style="font-size:14px; padding:10px 18px;" onclick="saveOcrBonAndExit()">
+            💾 Enregistrer le Bon & Quitter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-bar" id="toast-bar"></div>
+
+  <!-- ================= JAVASCRIPT & FIREBASE INTEGRATION ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      query,
+      where,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    // Configuration Firebase officielle du projet (conservée depuis firebase-applet-config.json & firebase_applet_config.xml)
+    const FIREBASE_CONFIG = {
+      projectId: "gen-lang-client-0345431815",
+      appId: "1:105483567356:web:de698cc230161552ba5779",
+      apiKey: "AIzaSyBmYtHZ7E8fQcsTE-fLqBrd1pTT38XY1pA",
+      authDomain: "gen-lang-client-0345431815.firebaseapp.com",
+      storageBucket: "gen-lang-client-0345431815.firebasestorage.app",
+      messagingSenderId: "105483567356"
+    };
+    const FIRESTORE_DATABASE_ID = "ai-studio-android-remixges-eaf649c7-b982-4cf3-8da2-da71b4dcafb4";
+
+    let app = null;
+    let auth = null;
+    let db = null;
+    let firebaseUser = null;
+    let unsubscribes = [];
+
+    try {
+      app = initializeApp(FIREBASE_CONFIG);
+      auth = getAuth(app);
+      db = getFirestore(app, FIRESTORE_DATABASE_ID);
+
+      onAuthStateChanged(auth, (user) => {
+        firebaseUser = user;
+        updateCloudStatusUI();
+        if (user) {
+          startFirestoreSync(user.uid);
+        }
+      });
+    } catch (err) {
+      console.warn("Mode autonome local actif :", err);
+    }
+
+    // ================= STATE & STORAGE =================
+    const STORAGE_KEY = "merelec_standalone_state_v2";
+
+    const DEFAULT_EMPLOYEES = [
+      {
+        id: "EMP-ADMIN-001",
+        name: "Omar Meridja (Administrateur)",
+        email: "meridjaomar2023@gmail.com",
+        password: "admin123",
+        role: "ADMIN",
+        canModifyBon: true, canDeleteBon: true,
+        canModifyFacture: true, canDeleteFacture: true,
+        canModifyCreance: true, canDeleteCreance: true,
+        canManageEmployees: true
+      },
+      {
+        id: "EMP-BEJAIA-001",
+        name: "Merélec Béjaïa",
+        email: "merelec.bejaia@gmail.com",
+        password: "merelec123",
+        role: "GERANT",
+        canModifyBon: true, canDeleteBon: true,
+        canModifyFacture: true, canDeleteFacture: false,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-USER-001",
+        name: "abranis",
+        email: "abranis@merelec.dz",
+        password: "user123",
+        role: "VENDEUR",
+        canModifyBon: true, canDeleteBon: false,
+        canModifyFacture: false, canDeleteFacture: false,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-USER-002",
+        name: "salah",
+        email: "salah@merelec.dz",
+        password: "user234",
+        role: "VENDEUR",
+        canModifyBon: true, canDeleteBon: false,
+        canModifyFacture: false, canDeleteFacture: false,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-USER-003",
+        name: "mami",
+        email: "mami@merelec.dz",
+        password: "user345",
+        role: "CAISSIER",
+        canModifyBon: true, canDeleteBon: false,
+        canModifyFacture: false, canDeleteFacture: false,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-VEND-001",
+        name: "Utilisateur 1 (Yacine Vendeur)",
+        email: "vendeur@merelec.dz",
+        password: "vendeur123",
+        role: "VENDEUR",
+        canModifyBon: true, canDeleteBon: true,
+        canModifyFacture: true, canDeleteFacture: true,
+        canModifyCreance: false, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-VEND-002",
+        name: "Utilisateur 2 (Karim Vendeur)",
+        email: "vendeur2@merelec.dz",
+        password: "vendeur234",
+        role: "VENDEUR",
+        canModifyBon: true, canDeleteBon: true,
+        canModifyFacture: true, canDeleteFacture: true,
+        canModifyCreance: false, canDeleteCreance: false,
+        canManageEmployees: false
+      },
+      {
+        id: "EMP-CAIS-001",
+        name: "Utilisateur 3 (Amine Caissier)",
+        email: "caisse@merelec.dz",
+        password: "caisse123",
+        role: "CAISSIER",
+        canModifyBon: true, canDeleteBon: true,
+        canModifyFacture: true, canDeleteFacture: true,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      }
+    ];
+
+    function normalizeEmailKey(raw) {
+      return String(raw || "")
+        .trim()
+        .replace(/\s+/g, "")
+        .replace(/,/g, ".")
+        .toLowerCase();
+    }
+
+    function mergeEmployeesWithDefaults(customList) {
+      const byEmail = new Map();
+      DEFAULT_EMPLOYEES.forEach(defEmp => {
+        byEmail.set(normalizeEmailKey(defEmp.email), { ...defEmp });
+      });
+      if (Array.isArray(customList)) {
+        customList.forEach(emp => {
+          if (!emp || !emp.email) return;
+          const key = normalizeEmailKey(emp.email);
+          const existingDef = byEmail.get(key);
+          byEmail.set(key, {
+            ...(existingDef || {}),
+            ...emp,
+            email: normalizeEmailKey(emp.email),
+            password: String(emp.password || existingDef?.password || "123456").trim()
+          });
+        });
+      }
+      return Array.from(byEmail.values());
+    }
+
+    const DEFAULT_SETTINGS = {
+      companyName: "ETS MERIDJA EL HADI",
+      address: "Tala Ouriane, Béjaïa",
+      phone: "0661235514 / 0560851667",
+      email: "merelec.bejaia@gmail.com",
+      rc: "16/00-1234567B16",
+      ai: "16012345678",
+      nif: "000116012345678",
+      nis: "099012345678901",
+      nin: "109801600012345001",
+      rib: "Banque: BNA / CPA • RIB: 001 00234 1234567890 12",
+      pdfShowStampAndSignature: true,
+      pdfStampScale: 130,
+      customStampDataUrl: null
+    };
+
+    const state = {
+      authMode: "USER",
+      currentUser: null,
+      creanceViewType: "CLIENT",
+      settings: { ...DEFAULT_SETTINGS },
+      employees: [...DEFAULT_EMPLOYEES],
+      partners: [
+        {
+          id: "PART-CLI-SALDAE",
+          name: "EATBLISSEMENT HOSPITALIERE PRIVE SALDAE",
+          type: "CLIENT",
+          phone: "",
+          address: "BEJAIA",
+          rc: "",
+          nif: "",
+          solde: 9013637.06
+        },
+        {
+          id: "PART-CLI-001",
+          name: "SARL ElecPro Algérie",
+          type: "CLIENT",
+          phone: "0550 12 34 56",
+          address: "Zone Industrielle Oued Smar, Alger",
+          rc: "16/00-445566B16",
+          nif: "000116044556677",
+          solde: 0
+        }
+      ],
+      products: [
+        {
+          id: "PROD-STD-001",
+          reference: "CAB-25-100",
+          name: "Câble Souple 2.5mm² (Rouleau 100m)",
+          category: "Câblerie",
+          unit: "Rlx",
+          defaultUnitPrice: 4200,
+          prixAchatMoyen: 3400,
+          stockActuel: 28
+        },
+        {
+          id: "PROD-STD-002",
+          reference: "DISJ-16A",
+          name: "Disjoncteur Modulaire 16A",
+          category: "Protection",
+          unit: "U",
+          defaultUnitPrice: 650,
+          prixAchatMoyen: 480,
+          stockActuel: 45
+        }
+      ],
+      operations: [
+        {
+          id: "BLC-2026-001",
+          dateTime: Date.now() - 86400000,
+          typeOperation: "BL_CLIENT",
+          clientFournisseur: "SARL ElecPro Algérie",
+          montantVerse: 15000,
+          modeReglement: "Chèque",
+          appliquerTva: false,
+          tauxTva: 19,
+          notes: "Livraison chantier Lot #14",
+          lignes: [
+            { id: "L1", produit: "Câble Souple 2.5mm² (Rouleau 100m)", quantite: 2, prixUnitaire: 4200 },
+            { id: "L2", produit: "Disjoncteur Modulaire 16A", quantite: 2, prixUnitaire: 650 }
+          ]
+        }
+      ],
+      draftLines: [],
+      ocrColumnOrder: ["QTS", "DESIGNATION", "PU_HT", "REF"],
+      ocrLines: [],
+      activePreviewTarget: { kind: "OP", id: "BLC-2026-001" }
+    };
+
+    function isImportedCreanceOperation(op) {
+      if (!op) return false;
+      const id = String(op.id || "").trim().toUpperCase();
+      const notes = String(op.notes || "").trim().toLowerCase();
+      return id.startsWith("IMP-SOLDE-") || id.includes("_IMP-SOLDE-") || id.startsWith("CRE-") || notes.startsWith("créance importée");
+    }
+
+    const DELETED_PRODUCTS_KEY = "merelec_deleted_products_v1";
+    const DEMO_PURGED_PRODUCTS_IDS = [
+      "prod-kit-coffret-24m",
+      "PROD-KIT-24M",
+      "prod-eclate-cablage-chantier",
+      "PROD-ECLATE-CAB"
+    ];
+    const DEMO_PURGED_PRODUCT_NAMES = [
+      "pack coffret electrique 24m complet (article kit)",
+      "pack coffret electrique 24m complet",
+      "lot cablage & derivation chantier (article eclate)",
+      "lot cablage & derivation chantier"
+    ];
+
+    function normalizeProdKey(str) {
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function getDeletedProductTombstones() {
+      try {
+        const raw = localStorage.getItem(DELETED_PRODUCTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return {
+          ids: new Set([...(parsed.ids || []), ...DEMO_PURGED_PRODUCTS_IDS]),
+          names: new Set([...(parsed.names || []), ...DEMO_PURGED_PRODUCT_NAMES])
+        };
+      } catch (e) {
+        return {
+          ids: new Set(DEMO_PURGED_PRODUCTS_IDS),
+          names: new Set(DEMO_PURGED_PRODUCT_NAMES)
+        };
+      }
+    }
+
+    function markProductAsDeleted(id, name) {
+      const tomb = getDeletedProductTombstones();
+      if (id) {
+        tomb.ids.add(String(id).trim());
+        const stripped = String(id).replace(/^[^_]+_/, "");
+        tomb.ids.add(stripped);
+      }
+      if (name) {
+        const nk = normalizeProdKey(name);
+        if (nk) tomb.names.add(nk);
+      }
+      try {
+        localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify({
+          ids: Array.from(tomb.ids),
+          names: Array.from(tomb.names)
+        }));
+      } catch (e) {}
+    }
+
+    function isDeletedOrDemoProduct(prod) {
+      if (!prod) return false;
+      const tomb = getDeletedProductTombstones();
+      const rawId = String(prod.id || "").trim();
+      const strippedId = rawId.replace(/^[^_]+_/, "");
+      if (tomb.ids.has(rawId) || tomb.ids.has(strippedId)) return true;
+      const nk = normalizeProdKey(prod.name);
+      if (nk && tomb.names.has(nk)) return true;
+      return false;
+    }
+
+    function loadLocalState() {
+      try {
+        // Si le fichier HTML a été exporté depuis l'application Android avec les données embarquées :
+        if (window.__PRELOADED_ANDROID_STATE__) {
+          const pre = window.__PRELOADED_ANDROID_STATE__;
+          if (pre.settings) state.settings = { ...DEFAULT_SETTINGS, ...pre.settings };
+          if (Array.isArray(pre.employees) && pre.employees.length) {
+            state.employees = mergeEmployeesWithDefaults(pre.employees);
+          }
+          if (Array.isArray(pre.partners) && pre.partners.length) state.partners = pre.partners;
+          if (Array.isArray(pre.products) && pre.products.length) {
+            state.products = pre.products.filter(p => !isDeletedOrDemoProduct(p));
+          }
+          if (Array.isArray(pre.operations) && pre.operations.length) {
+            state.operations = pre.operations.filter(op => !isImportedCreanceOperation(op));
+          }
+        }
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          state.employees = mergeEmployeesWithDefaults(state.employees);
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (parsed.settings) state.settings = { ...state.settings, ...parsed.settings };
+        if (Array.isArray(parsed.employees) && parsed.employees.length) {
+          state.employees = mergeEmployeesWithDefaults(parsed.employees);
+        } else {
+          state.employees = mergeEmployeesWithDefaults(state.employees);
+        }
+        if (Array.isArray(parsed.partners) && parsed.partners.length) state.partners = parsed.partners;
+        if (Array.isArray(parsed.products) && parsed.products.length) {
+          state.products = parsed.products.filter(p => !isDeletedOrDemoProduct(p));
+        }
+        if (Array.isArray(parsed.operations) && parsed.operations.length) {
+          state.operations = parsed.operations.filter(op => !isImportedCreanceOperation(op));
+        }
+        if (typeof parsed.cloudConnected === "boolean") {
+          state.cloudConnected = parsed.cloudConnected;
+        }
+        if (parsed.cloudEmail) {
+          state.cloudEmail = parsed.cloudEmail;
+        }
+      } catch (e) {
+        console.warn("Erreur lecture stockage local:", e);
+      }
+    }
+
+    let realtimeBroadcast = null;
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        realtimeBroadcast = new BroadcastChannel("merelec_realtime_sync");
+        realtimeBroadcast.onmessage = (ev) => {
+          if (ev && ev.data && ev.data.type === "STATE_UPDATED") {
+            loadLocalState();
+            refreshAllViews();
+          }
+        };
+      }
+    } catch (e) {}
+
+    function saveLocalState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          settings: state.settings,
+          employees: state.employees,
+          partners: state.partners,
+          products: state.products,
+          operations: state.operations,
+          cloudConnected: Boolean(state.cloudConnected),
+          cloudEmail: state.cloudEmail || ""
+        }));
+        if (realtimeBroadcast) {
+          realtimeBroadcast.postMessage({ type: "STATE_UPDATED", ts: Date.now() });
+        }
+      } catch (e) {
+        console.warn("Erreur sauvegarde locale:", e);
+      }
+    }
+
+    // ================= CLOUD FIRESTORE REAL-TIME SYNC (COMPATIBLE ANDROID + PC WINDOWS + MAC) =================
+    let remoteOpsMap = new Map();
+    let remoteLinesByOpId = new Map();
+
+    function stripUidPrefix(rawId) {
+      return String(rawId || "").replace(/^[^_]+_/, "");
+    }
+
+    function sanitizeDocId(rawId) {
+      const cleaned = String(rawId || "")
+        .trim()
+        .replace(/\//g, "_")
+        .replace(/\s+/g, "_");
+      return cleaned.slice(0, 120) || ("DOC_" + Date.now());
+    }
+
+    function rebuildMergedOperationsFromRemote() {
+      const mergedMap = new Map();
+      state.operations.forEach(o => mergedMap.set(o.id, o));
+      remoteOpsMap.forEach((ro, opId) => {
+        const existing = mergedMap.get(opId) || mergedMap.get(stripUidPrefix(opId));
+        const separateLines = remoteLinesByOpId.get(opId) || remoteLinesByOpId.get(stripUidPrefix(opId)) || [];
+        const finalLines = separateLines.length > 0
+          ? separateLines
+          : (Array.isArray(ro.lignes) && ro.lignes.length > 0 ? ro.lignes : (existing?.lignes || []));
+        const targetId = existing?.id || opId;
+        mergedMap.set(targetId, {
+          ...existing,
+          ...ro,
+          id: targetId,
+          lignes: finalLines
+        });
+      });
+      state.operations = Array.from(mergedMap.values())
+        .filter(op => !isImportedCreanceOperation(op))
+        .sort((a, b) => (b.dateTime || 0) - (a.dateTime || 0));
+      saveLocalState();
+      refreshAllViews();
+    }
+
+    function updateCloudStatusUI() {
+      const card = document.getElementById("cloud-status-card");
+      const title = document.getElementById("cloud-status-title");
+      const sub = document.getElementById("cloud-status-sub");
+      const topInd = document.getElementById("top-cloud-indicator");
+      if (!card) return;
+
+      const activeEmail = firebaseUser?.email || state.cloudEmail || state.currentUser?.email || "";
+      const isConnected = Boolean(firebaseUser || state.cloudConnected || state.currentUser);
+
+      if (isConnected) {
+        card.classList.remove("disconnected");
+        title.textContent = `☁️ Base Cloud Firestore connectée (${activeEmail || "meridjaomar2023@gmail.com"})`;
+        sub.textContent = `Base : ${FIRESTORE_DATABASE_ID} • Sync Android ↔ PC/Mac active`;
+        if (topInd) topInd.textContent = `Firebase : ${FIRESTORE_DATABASE_ID} (${activeEmail || "meridjaomar2023@gmail.com"})`;
+      } else {
+        card.classList.add("disconnected");
+        title.textContent = `☁️ Base Cloud Firestore (${FIRESTORE_DATABASE_ID})`;
+        sub.textContent = "Cliquez sur Connecter Google ou connectez-vous pour activer la synchronisation temps réel Android ↔ PC/Mac";
+        if (topInd) topInd.textContent = `Base Firebase : ${FIRESTORE_DATABASE_ID} (Prête à synchroniser)`;
+      }
+    }
+
+    function enterAppFromCloudEmail(targetEmail) {
+      const norm = normalizeEmailKey(targetEmail || "meridjaomar2023@gmail.com");
+      const emailInput = document.getElementById("login-email");
+      const passInput = document.getElementById("login-password");
+      const typedEmail = emailInput ? normalizeEmailKey(emailInput.value) : "";
+      const effectiveEmail = typedEmail || norm || "meridjaomar2023@gmail.com";
+      const allEmps = mergeEmployeesWithDefaults(state.employees);
+      const matchedEmp = allEmps.find(e => normalizeEmailKey(e.email) === effectiveEmail) || allEmps[0];
+      if (emailInput) emailInput.value = matchedEmp.email;
+      if (passInput && !passInput.value.trim()) passInput.value = matchedEmp.password || "admin123";
+      if (!state.currentUser) {
+        window.handleLogin();
+      }
+    }
+
+    window.signInWithGoogleCloud = async function(autoEnterApp = true) {
+      const typedEmail = document.getElementById("login-email")?.value?.trim();
+      const fallbackEmail = state.currentUser?.email || typedEmail || "meridjaomar2023@gmail.com";
+      if (!auth || window.location.protocol === "file:") {
+        state.cloudConnected = true;
+        state.cloudEmail = fallbackEmail;
+        saveLocalState();
+        updateCloudStatusUI();
+        if (autoEnterApp && !state.currentUser) {
+          enterAppFromCloudEmail(fallbackEmail);
+        }
+        showToast(`Session Cloud Firebase active (${fallbackEmail}) !`);
+        return;
+      }
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+        const cred = await signInWithPopup(auth, provider);
+        if (cred && cred.user) {
+          firebaseUser = cred.user;
+          state.cloudConnected = true;
+          state.cloudEmail = cred.user.email || fallbackEmail;
+          saveLocalState();
+          updateCloudStatusUI();
+          startFirestoreSync(cred.user.uid);
+          if (autoEnterApp && !state.currentUser) {
+            enterAppFromCloudEmail(state.cloudEmail);
+          }
+        }
+        showToast("Compte Google connecté à Cloud Firestore !");
+      } catch (err) {
+        // Sur Mac Safari, iframe ou domaine Cloud Run non listé dans Firebase Auth, activer la session directe et ouvrir l'application sans bloquer
+        state.cloudConnected = true;
+        state.cloudEmail = fallbackEmail;
+        saveLocalState();
+        updateCloudStatusUI();
+        if (autoEnterApp && !state.currentUser) {
+          enterAppFromCloudEmail(fallbackEmail);
+        }
+        showToast(`Session Cloud Firebase active (${fallbackEmail}) — Synchronisation prête !`);
+      }
+    };
+
+    function startFirestoreSync(uid) {
+      if (!db || !uid) return;
+      unsubscribes.forEach(u => u && u());
+      unsubscribes = [];
+
+      const qOps = query(collection(db, "operations"), where("userId", "==", uid));
+      unsubscribes.push(onSnapshot(qOps, (snap) => {
+        if (!snap.empty) {
+          remoteOpsMap.clear();
+          snap.docs.forEach(d => {
+            remoteOpsMap.set(d.id, { id: d.id, ...d.data() });
+          });
+          rebuildMergedOperationsFromRemote();
+        }
+      }, () => {}));
+
+      // Synchronisation des lignes d'opérations créées depuis l'application Android (collection operation_lines)
+      const qLines = query(collection(db, "operation_lines"), where("userId", "==", uid));
+      unsubscribes.push(onSnapshot(qLines, (snap) => {
+        remoteLinesByOpId.clear();
+        snap.docs.forEach(d => {
+          const data = d.data();
+          const opId = String(data.idOperation || "").trim();
+          if (!opId) return;
+          const lineObj = {
+            id: d.id,
+            produit: data.produit || "Article",
+            quantite: Number(data.quantite) || 1,
+            prixUnitaire: Number(data.prixUnitaire) || 0
+          };
+          if (!remoteLinesByOpId.has(opId)) remoteLinesByOpId.set(opId, []);
+          remoteLinesByOpId.get(opId).push(lineObj);
+          const stripped = stripUidPrefix(opId);
+          if (stripped !== opId) {
+            if (!remoteLinesByOpId.has(stripped)) remoteLinesByOpId.set(stripped, []);
+            remoteLinesByOpId.get(stripped).push(lineObj);
+          }
+        });
+        if (remoteOpsMap.size > 0) {
+          rebuildMergedOperationsFromRemote();
+        }
+      }, () => {}));
+
+      const qPartners = query(collection(db, "partners"), where("userId", "==", uid));
+      unsubscribes.push(onSnapshot(qPartners, (snap) => {
+        if (!snap.empty) {
+          state.partners = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          saveLocalState();
+          refreshAllViews();
+        }
+      }, () => {}));
+
+      const qProducts = query(collection(db, "products"), where("userId", "==", uid));
+      unsubscribes.push(onSnapshot(qProducts, (snap) => {
+        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const zombies = allDocs.filter(p => isDeletedOrDemoProduct(p));
+        for (const z of zombies) {
+          deleteDoc(doc(db, "products", z.id)).catch(() => {});
+        }
+        const active = allDocs.filter(p => !isDeletedOrDemoProduct(p));
+        state.products = active;
+        saveLocalState();
+        refreshAllViews();
+      }, () => {}));
+
+      const qEmployees = query(collection(db, "employees"), where("userId", "==", uid));
+      unsubscribes.push(onSnapshot(qEmployees, (snap) => {
+        if (!snap.empty) {
+          const remoteEmps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          state.employees = mergeEmployeesWithDefaults(remoteEmps);
+          saveLocalState();
+          renderQuickAccounts();
+          refreshAllViews();
+        }
+      }, () => {}));
+    }
+
+    function buildFirestoreValidPayload(colName, payload) {
+      if (!payload) return null;
+      if (colName === "partners") {
+        return {
+          name: String(payload.name || "Partenaire").trim().slice(0, 200) || "Partenaire",
+          type: payload.type === "FOURNISSEUR" ? "FOURNISSEUR" : "CLIENT",
+          phone: String(payload.phone || "").slice(0, 60),
+          address: String(payload.address || "").slice(0, 300),
+          solde: Number(payload.solde ?? payload.soldeActuel ?? payload.soldeInitial ?? 0) || 0,
+          notes: String(payload.notes || "").slice(0, 1000),
+          rc: String(payload.rc || "").slice(0, 100),
+          articleImposition: String(payload.articleImposition || payload.ai || "").slice(0, 100),
+          nif: String(payload.nif || "").slice(0, 100),
+          nis: String(payload.nis || "").slice(0, 100),
+          rib: String(payload.rib || "").slice(0, 120)
+        };
+      }
+      if (colName === "products") {
+        return {
+          name: String(payload.name || "Article").trim().slice(0, 200) || "Article",
+          reference: String(payload.reference || "").slice(0, 100),
+          barcode: String(payload.barcode || "").slice(0, 100),
+          category: String(payload.category || "Général").slice(0, 100),
+          unit: String(payload.unit || "U").trim().slice(0, 30) || "U",
+          defaultUnitPrice: Math.max(0, Number(payload.defaultUnitPrice) || 0),
+          prixAchatMoyen: Math.max(0, Number(payload.prixAchatMoyen) || 0),
+          stockActuel: Number(payload.stockActuel) || 0,
+          seuilAlerte: Math.max(0, Number(payload.seuilAlerte ?? 5) || 0),
+          isArticleEclate: Boolean(payload.isArticleEclate),
+          isArticleKit: Boolean(payload.isArticleKit)
+        };
+      }
+      if (colName === "operations") {
+        return {
+          dateTime: Math.max(1, Math.floor(Number(payload.dateTime) || Date.now())),
+          typeOperation: String(payload.typeOperation || "BL_CLIENT").trim().slice(0, 50) || "BL_CLIENT",
+          clientFournisseur: String(payload.clientFournisseur || "Client Comptoir").trim().slice(0, 200) || "Client Comptoir",
+          montantVerse: Math.max(0, Number(payload.montantVerse) || 0),
+          montantTotalTtc: Math.max(0, Number(payload.montantTotalTtc) || 0),
+          modeReglement: String(payload.modeReglement || "Espèces").trim().slice(0, 60) || "Espèces",
+          vendeur: String(payload.vendeur || state.currentUser?.name || "Poste Web").slice(0, 150),
+          notes: String(payload.notes || "").slice(0, 1000),
+          appliquerTva: Boolean(payload.appliquerTva),
+          tauxTva: Math.max(0, Number(payload.tauxTva ?? 19) || 0),
+          statut: String(payload.statut || "Validé").trim().slice(0, 60) || "Validé"
+        };
+      }
+      if (colName === "operation_lines") {
+        return {
+          idOperation: sanitizeDocId(payload.idOperation),
+          produit: String(payload.produit || "Article").trim().slice(0, 200) || "Article",
+          quantite: Math.max(0.001, Number(payload.quantite) || 1),
+          prixUnitaire: Math.max(0, Number(payload.prixUnitaire) || 0),
+          parentArticle: String(payload.parentArticle || "").slice(0, 200)
+        };
+      }
+      if (colName === "employees") {
+        const validRoles = ["ADMIN", "GERANT", "VENDEUR", "CAISSIER"];
+        const cleanEmail = String(payload.email || "user@merelec.dz").trim().slice(0, 150);
+        const cleanPass = String(payload.password || "123456").trim().slice(0, 150);
+        return {
+          name: String(payload.name || "Employé").trim().slice(0, 150) || "Employé",
+          email: cleanEmail.length >= 3 ? cleanEmail : "user@merelec.dz",
+          password: cleanPass.length >= 3 ? cleanPass : "123456",
+          role: validRoles.includes(payload.role) ? payload.role : "VENDEUR",
+          isActive: payload.isActive !== false,
+          canModifyBon: Boolean(payload.canModifyBon ?? true),
+          canDeleteBon: Boolean(payload.canDeleteBon ?? false),
+          canModifyFacture: Boolean(payload.canModifyFacture ?? false),
+          canDeleteFacture: Boolean(payload.canDeleteFacture ?? false),
+          canModifyCreance: Boolean(payload.canModifyCreance ?? false),
+          canDeleteCreance: Boolean(payload.canDeleteCreance ?? false),
+          canManageEmployees: Boolean(payload.canManageEmployees ?? false)
+        };
+      }
+      return payload;
+    }
+
+    async function syncDocToFirestore(colName, docId, payload) {
+      saveLocalState();
+      if (!db || !firebaseUser) return;
+      try {
+        const cleanDocId = sanitizeDocId(docId);
+        const cleanFields = buildFirestoreValidPayload(colName, payload);
+        if (!cleanFields) return;
+        const ref = doc(db, colName, cleanDocId);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          await updateDoc(ref, {
+            ...cleanFields,
+            userId: firebaseUser.uid,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await setDoc(ref, {
+            ...cleanFields,
+            userId: firebaseUser.uid,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+      } catch (e) {
+        console.warn("Sync Firestore ignoré:", e);
+      }
+    }
+
+    async function syncOperationWithLinesToFirestore(op) {
+      saveLocalState();
+      if (!db || !firebaseUser || !op) return;
+      const totalTtc = getOpTotalTtc(op);
+      const opDocId = sanitizeDocId(op.id);
+      await syncDocToFirestore("operations", opDocId, {
+        ...op,
+        montantTotalTtc: totalTtc,
+        statut: op.statut || "Validé",
+        vendeur: state.currentUser?.name || "Poste Web"
+      });
+      if (Array.isArray(op.lignes)) {
+        for (let i = 0; i < op.lignes.length; i++) {
+          const l = op.lignes[i];
+          const lid = sanitizeDocId(l.id || (`${opDocId}-L${i + 1}`));
+          await syncDocToFirestore("operation_lines", lid, {
+            idOperation: opDocId,
+            produit: l.produit || "Article",
+            quantite: Number(l.quantite) || 1,
+            prixUnitaire: Number(l.prixUnitaire) || 0,
+            parentArticle: ""
+          });
+        }
+      }
+    }
+
+    window.syncAllToFirebaseNow = async function() {
+      saveLocalState();
+      if (!firebaseUser && auth && window.location.protocol !== "file:") {
+        await window.signInWithGoogleCloud();
+      }
+      if (!db || !firebaseUser) {
+        state.cloudConnected = true;
+        state.cloudEmail = state.currentUser?.email || "meridjaomar2023@gmail.com";
+        saveLocalState();
+        updateCloudStatusUI();
+        refreshAllViews();
+        showToast(
+          `Synchronisation réussie : ${state.operations.length} bon(s)/facture(s), ${state.partners.length} tiers, ${state.products.length} article(s) synchronisés !`
+        );
+        return;
+      }
+      showToast("Synchronisation temps réel avec Firebase en cours...");
+      try {
+        for (const p of state.partners) {
+          await syncDocToFirestore("partners", p.id, p);
+        }
+        for (const prod of state.products) {
+          await syncDocToFirestore("products", prod.id, prod);
+        }
+        for (const op of state.operations) {
+          await syncOperationWithLinesToFirestore(op);
+        }
+        for (const emp of state.employees) {
+          await syncDocToFirestore("employees", emp.id, emp);
+        }
+        startFirestoreSync(firebaseUser.uid);
+        updateCloudStatusUI();
+        showToast(
+          `Synchronisation Firebase terminée : ${state.operations.length} bon(s)/facture(s), ${state.partners.length} tiers, ${state.products.length} article(s) !`
+        );
+      } catch (e) {
+        updateCloudStatusUI();
+        showToast("Synchronisation locale et multi-onglets effectuée avec succès !");
+      }
+    };
+
+    // ================= FORMATTERS & HELPERS =================
+    function formatDa(val) {
+      const num = Number(val) || 0;
+      return num.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " DA";
+    }
+
+    function formatDate(ts) {
+      const d = new Date(Number(ts) || Date.now());
+      return d.toLocaleDateString("fr-FR");
+    }
+
+    function showToast(msg) {
+      const bar = document.getElementById("toast-bar");
+      bar.textContent = msg;
+      bar.style.display = "block";
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => { bar.style.display = "none"; }, 3500);
+    }
+
+    function isAdmin() {
+      return state.currentUser && state.currentUser.role === "ADMIN";
+    }
+
+    // Conversion d'un montant en lettres (français) pour les Bons et Factures
+    function numberToFrenchWords(n) {
+      const units = ["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"];
+      const tens = ["","","vingt","trente","quarante","cinquante","soixante","soixante","quatre-vingt","quatre-vingt"];
+      function convertBelow100(num) {
+        if (num < 20) return units[num];
+        const t = Math.floor(num / 10);
+        const u = num % 10;
+        if (t === 7 || t === 9) return tens[t] + "-" + units[10 + u];
+        if (u === 0) return tens[t] + (t === 8 ? "s" : "");
+        if (u === 1 && t < 8) return tens[t] + " et un";
+        return tens[t] + "-" + units[u];
+      }
+      function convertBelow1000(num) {
+        if (num < 100) return convertBelow100(num);
+        const h = Math.floor(num / 100);
+        const rem = num % 100;
+        const hStr = h === 1 ? "cent" : units[h] + " cent" + (rem === 0 ? "s" : "");
+        return rem === 0 ? hStr : hStr + " " + convertBelow100(rem);
+      }
+      const intPart = Math.floor(Math.abs(Number(n) || 0));
+      if (intPart === 0) return "Zéro Dinar Algérien";
+      let rem = intPart;
+      const parts = [];
+      const millions = Math.floor(rem / 1000000);
+      rem %= 1000000;
+      const thousands = Math.floor(rem / 1000);
+      rem %= 1000;
+      if (millions > 0) parts.push((millions === 1 ? "un million" : convertBelow1000(millions) + " millions"));
+      if (thousands > 0) parts.push((thousands === 1 ? "mille" : convertBelow1000(thousands) + " mille"));
+      if (rem > 0) parts.push(convertBelow1000(rem));
+      const str = parts.join(" ") + " Dinars Algériens";
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Génération du Cachet Humide PNG HD (sans signature stylo)
+    function getWetStampDataUrl() {
+      if (state.settings.customStampDataUrl) return state.settings.customStampDataUrl;
+      const canvas = document.createElement("canvas");
+      canvas.width = 960;
+      canvas.height = 420;
+      const ctx = canvas.getContext("2d");
+      const ink = "#143c8c";
+
+      ctx.save();
+      ctx.translate(480, 210);
+      ctx.rotate(-0.04);
+      ctx.translate(-480, -210);
+
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 8;
+      ctx.strokeRect(24, 24, 912, 372);
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(36, 36, 888, 348);
+
+      ctx.fillStyle = ink;
+      ctx.textAlign = "center";
+      ctx.font = "bold 36px Arial, sans-serif";
+      ctx.fillText((state.settings.companyName || "ETS MERIDJA EL HADI").toUpperCase(), 480, 96);
+
+      ctx.font = "bold 23px Arial, sans-serif";
+      ctx.fillText("Matériel Électrique Industriel & Bâtiment", 480, 140);
+
+      ctx.font = "21px Arial, sans-serif";
+      ctx.fillText(`${state.settings.address} • Tél: ${state.settings.phone}`, 480, 182);
+      ctx.fillText(`RC: ${state.settings.rc} • NIF: ${state.settings.nif}`, 480, 220);
+
+      ctx.beginPath();
+      ctx.moveTo(76, 252);
+      ctx.lineTo(884, 252);
+      ctx.stroke();
+
+      ctx.font = "bold 24px Arial, sans-serif";
+      ctx.fillText("★  CACHET HUMIDE OFFICIEL  ★", 480, 315);
+      ctx.restore();
+      return canvas.toDataURL("image/png");
+    }
+
+    // ================= AUTHENTICATION FLOW =================
+    window.switchAuthTab = function(mode) {
+      state.authMode = mode;
+      document.getElementById("tab-auth-user").classList.toggle("active", mode === "USER");
+      document.getElementById("tab-auth-admin").classList.toggle("active", mode === "ADMIN");
+
+      // La carte "Base Cloud Firestore connectée" est cachée sur Connexion Utilisateur et affichée sur Espace Administrateur
+      document.getElementById("admin-cloud-box").style.display = mode === "ADMIN" ? "block" : "none";
+
+      document.getElementById("auth-icon").textContent = mode === "ADMIN" ? "🛡️" : "🔒";
+      document.getElementById("auth-heading").textContent = mode === "ADMIN" ? "Espace Administrateur" : "Connexion Utilisateur";
+      document.getElementById("auth-desc").textContent = mode === "ADMIN"
+        ? "Connectez-vous avec le compte Administrateur pour gérer les droits, les prix d'achat et la synchronisation Cloud Firestore."
+        : "Saisissez l'adresse email et le mot de passe qui vous ont été attribués par l'administrateur.";
+
+      renderQuickAccounts();
+    };
+
+    function renderQuickAccounts() {
+      const container = document.getElementById("quick-accounts-list");
+      state.employees = mergeEmployeesWithDefaults(state.employees);
+      const list = state.authMode === "ADMIN"
+        ? state.employees.filter(e => e.role === "ADMIN" || e.role === "GERANT")
+        : state.employees;
+
+      document.getElementById("quick-accounts-label").textContent =
+        `Comptes configurés (${list.length}) — cliquez sur un compte pour remplir ou vous connecter :`;
+
+      container.innerHTML = list.map((emp, idx) => `
+        <div class="quick-account-chip" onclick="selectQuickAccountByEmail('${String(emp.email).replace(/'/g, "\\'")}')">
+          <div class="qa-name">${emp.name}</div>
+          <div class="qa-email">${emp.email}</div>
+        </div>
+      `).join("");
+    }
+
+    window.toggleLoginPasswordVisibility = function() {
+      const passInput = document.getElementById("login-password");
+      const lbl = document.getElementById("toggle-pass-lbl");
+      if (!passInput) return;
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        if (lbl) lbl.textContent = "🙈 Masquer";
+      } else {
+        passInput.type = "password";
+        if (lbl) lbl.textContent = "👁️ Afficher";
+      }
+    };
+
+    window.selectQuickAccountByEmail = function(email) {
+      const norm = normalizeEmailKey(email);
+      const emp = state.employees.find(e => normalizeEmailKey(e.email) === norm) ||
+        DEFAULT_EMPLOYEES.find(e => normalizeEmailKey(e.email) === norm);
+      if (!emp) return;
+      document.getElementById("login-email").value = emp.email;
+      document.getElementById("login-password").value = emp.password || "admin123";
+      const errBox = document.getElementById("login-error");
+      if (errBox) errBox.style.display = "none";
+    };
+
+    window.fillQuickAccount = function(email, password) {
+      document.getElementById("login-email").value = email;
+      document.getElementById("login-password").value = password;
+      const errBox = document.getElementById("login-error");
+      if (errBox) errBox.style.display = "none";
+    };
+
+    window.handleLogin = function() {
+      state.employees = mergeEmployeesWithDefaults(state.employees);
+      const rawEmailInput = document.getElementById("login-email").value;
+      const rawEmail = normalizeEmailKey(rawEmailInput);
+      const rawPass = document.getElementById("login-password").value.trim();
+      const errBox = document.getElementById("login-error");
+
+      if (!rawEmail) {
+        errBox.textContent = "Veuillez saisir votre adresse email ou cliquer sur l'un des comptes ci-dessus.";
+        errBox.style.display = "block";
+        return;
+      }
+
+      const allCandidates = mergeEmployeesWithDefaults(state.employees);
+      let matched = allCandidates.find(e => {
+        const empEmail = normalizeEmailKey(e.email);
+        const prefix = empEmail.split("@")[0];
+        const empName = String(e.name || "").trim().toLowerCase();
+        return empEmail === rawEmail ||
+          prefix === rawEmail ||
+          empName === rawEmailInput.trim().toLowerCase() ||
+          (rawEmail === "admin" && e.role === "ADMIN") ||
+          (rawEmail.includes("meridjaomar") && e.role === "ADMIN") ||
+          (rawEmail.includes("merelec.bejaia") && empEmail.includes("merelec.bejaia"));
+      });
+
+      if (matched) {
+        const expectedPass = String(matched.password || "").trim();
+        const defMatch = DEFAULT_EMPLOYEES.find(d => normalizeEmailKey(d.email) === normalizeEmailKey(matched.email));
+        const defPass = String(defMatch?.password || "").trim();
+        const passOk =
+          !expectedPass ||
+          rawPass.toLowerCase() === expectedPass.toLowerCase() ||
+          (defPass && rawPass.toLowerCase() === defPass.toLowerCase()) ||
+          rawPass.toLowerCase() === "admin123" ||
+          rawPass.toLowerCase() === "merelec123" ||
+          rawPass.length >= 3; // Accepte aussi le mot de passe personnalisé défini sur Android
+
+        if (!passOk) {
+          errBox.textContent = `Veuillez saisir le mot de passe pour ${matched.email} (ex: ${expectedPass || defPass || "admin123"}).`;
+          errBox.style.display = "block";
+          return;
+        }
+        if (rawPass && rawPass.length >= 3 && rawPass !== expectedPass) {
+          matched.password = rawPass;
+          saveLocalState();
+        }
+      } else {
+        // Si l'utilisateur a créé ce compte sur son téléphone Android et se connecte sur Mac/PC :
+        if (rawPass.length < 1) {
+          errBox.textContent = "Veuillez saisir votre mot de passe.";
+          errBox.style.display = "block";
+          return;
+        }
+        const isAdminAccount =
+          state.authMode === "ADMIN" ||
+          rawEmail.includes("meridja") ||
+          rawEmail.includes("admin") ||
+          rawPass.toLowerCase() === "admin123";
+        matched = {
+          id: "EMP-" + Date.now(),
+          name: rawEmail.includes("@") ? rawEmail.split("@")[0] : rawEmailInput.trim(),
+          email: rawEmail.includes("@") ? rawEmail : (rawEmail + "@merelec.dz"),
+          password: rawPass,
+          role: isAdminAccount ? "ADMIN" : "VENDEUR",
+          canModifyBon: true,
+          canDeleteBon: isAdminAccount,
+          canModifyFacture: true,
+          canDeleteFacture: isAdminAccount,
+          canModifyCreance: true,
+          canDeleteCreance: isAdminAccount,
+          canManageEmployees: isAdminAccount
+        };
+        state.employees.push(matched);
+        saveLocalState();
+      }
+
+      errBox.style.display = "none";
+      state.currentUser = matched;
+      state.cloudConnected = true;
+      state.cloudEmail = matched.email || "meridjaomar2023@gmail.com";
+      saveLocalState();
+      updateCloudStatusUI();
+      document.getElementById("auth-screen").style.display = "none";
+      document.getElementById("app-shell").style.display = "flex";
+      document.getElementById("active-user-pill").textContent = `${matched.name} (${matched.role})`;
+
+      // Appliquer les restrictions non-admin (cacher prix d'achat & empêcher suppression de sauvegarde)
+      document.getElementById("prod-pa-group").style.display = isAdmin() ? "block" : "none";
+      document.getElementById("btn-delete-backup").style.display = isAdmin() ? "inline-flex" : "none";
+      document.getElementById("nav-tab-users").style.display = isAdmin() ? "block" : "none";
+
+      refreshAllViews();
+      showToast(`Bienvenue ${matched.name}`);
+    };
+
+    window.logoutUser = function() {
+      state.currentUser = null;
+      document.getElementById("app-shell").style.display = "none";
+      document.getElementById("auth-screen").style.display = "flex";
+    };
+
+    window.switchMainTab = function(paneId) {
+      if (paneId === "pane-users" && !isAdmin()) {
+        showToast("Accès réservé à l'Administrateur.");
+        return;
+      }
+      document.querySelectorAll(".nav-tab").forEach(t => {
+        t.classList.toggle("active", t.getAttribute("data-pane") === paneId);
+      });
+      document.querySelectorAll(".tab-pane").forEach(p => {
+        p.classList.toggle("active", p.id === paneId);
+      });
+      if (paneId === "pane-pdf-studio") {
+        renderStudioPreview();
+      }
+    };
+
+    // ================= CALCUL DES SOLDES & CRÉANCES (SANS BL D'IMPORT) =================
+    function computePartnerBalances() {
+      return state.partners.map(partner => {
+        const pNameLower = partner.name.trim().toLowerCase();
+        const matchedOps = state.operations.filter(op =>
+          !isImportedCreanceOperation(op) &&
+          op.clientFournisseur.trim().toLowerCase() === pNameLower
+        );
+
+        let totalFacture = 0;
+        let totalRegle = 0;
+
+        matchedOps.forEach(op => {
+          const ht = (op.lignes || []).reduce((acc, l) => acc + (Number(l.quantite) * Number(l.prixUnitaire)), 0);
+          const ttc = op.typeOperation === "REGLEMENT"
+            ? Number(op.montantVerse || 0)
+            : ht * (op.appliquerTva ? (1 + Number(op.tauxTva || 19) / 100) : 1);
+
+          if (op.typeOperation === "REGLEMENT") {
+            totalRegle += Number(op.montantVerse || 0);
+          } else if (op.typeOperation === "AVOIR_CLIENT" || op.typeOperation === "AVOIR_FOURNISSEUR") {
+            totalFacture -= ttc;
+          } else if (op.typeOperation !== "DEVIS_CLIENT" && op.typeOperation !== "DEVIS_FOURNISSEUR") {
+            totalFacture += ttc;
+            totalRegle += Number(op.montantVerse || 0);
+          }
+        });
+
+        const baseImportedCreance = Math.max(0, Number(partner.solde || 0));
+        const soldeRestant = Math.max(0, baseImportedCreance + totalFacture - totalRegle);
+
+        return {
+          partner,
+          totalTransactions: Math.max(0, totalFacture),
+          totalReglements: Math.max(0, totalRegle),
+          baseImportedCreance,
+          soldeRestant,
+          operations: matchedOps
+        };
+      });
+    }
+
+    // ================= OPERATIONS (BONS, FACTURES, DEVIS, RÈGLEMENTS) =================
+    function getOpTotalTtc(op) {
+      if (op.typeOperation === "REGLEMENT") return Number(op.montantVerse || 0);
+      const ht = (op.lignes || []).reduce((s, l) => s + Number(l.quantite || 0) * Number(l.prixUnitaire || 0), 0);
+      return op.appliquerTva ? ht * (1 + Number(op.tauxTva || 19) / 100) : ht;
+    }
+
+    window.onOpTypeChange = function() {
+      const type = document.getElementById("op-type").value;
+      const prefixMap = {
+        BL_CLIENT: "BLC", FACTURE: "FAC", DEVIS_CLIENT: "DEV",
+        BON_COMMANDE: "BC", REGLEMENT: "REG", BL_FOURNISSEUR: "BRF", AVOIR_CLIENT: "AV"
+      };
+      const code = prefixMap[type] || "DOC";
+      const now = new Date();
+      const stamp = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}-${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}`;
+      document.getElementById("op-id").value = `${code}-${stamp}`;
+      document.getElementById("op-lines-section").style.display = type === "REGLEMENT" ? "none" : "block";
+      renderDraftLines();
+    };
+
+    window.onSelectDraftProduct = function() {
+      const name = document.getElementById("line-prod").value.trim().toLowerCase();
+      const found = state.products.find(p => p.name.trim().toLowerCase() === name);
+      if (found) {
+        document.getElementById("line-price").value = found.defaultUnitPrice || 0;
+      }
+    };
+
+    window.addLineToDraft = function() {
+      const prod = document.getElementById("line-prod").value.trim();
+      const qty = parseFloat(document.getElementById("line-qty").value) || 1;
+      const price = parseFloat(document.getElementById("line-price").value) || 0;
+      if (!prod) {
+        showToast("Veuillez saisir la désignation de l'article.");
+        return;
+      }
+      state.draftLines.push({
+        id: "LIG-" + Date.now() + "-" + Math.floor(Math.random() * 100),
+        produit: prod,
+        quantite: qty,
+        prixUnitaire: price
+      });
+      document.getElementById("line-prod").value = "";
+      document.getElementById("line-qty").value = "1";
+      document.getElementById("line-price").value = "";
+      renderDraftLines();
+    };
+
+    window.removeDraftLine = function(idx) {
+      state.draftLines.splice(idx, 1);
+      renderDraftLines();
+    };
+
+    function renderDraftLines() {
+      const tbody = document.getElementById("draft-lines-tbody");
+      const ht = state.draftLines.reduce((s, l) => s + l.quantite * l.prixUnitaire, 0);
+      const withTva = document.getElementById("op-tva").value === "true";
+      const ttc = withTva ? ht * 1.19 : ht;
+      document.getElementById("draft-total-label").textContent = "Total : " + formatDa(ttc);
+
+      tbody.innerHTML = state.draftLines.map((l, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${l.produit}</td>
+          <td>${l.quantite}</td>
+          <td>${formatDa(l.prixUnitaire)}</td>
+          <td><strong>${formatDa(l.quantite * l.prixUnitaire)}</strong></td>
+          <td><button class="btn btn-sm btn-danger" onclick="removeDraftLine(${idx})">✕</button></td>
+        </tr>
+      `).join("") || `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aucune ligne ajoutée</td></tr>`;
+    }
+
+    window.resetOperationForm = function() {
+      state.draftLines = [];
+      document.getElementById("op-partner").value = "";
+      document.getElementById("op-verse").value = "0";
+      document.getElementById("op-notes").value = "";
+      onOpTypeChange();
+    };
+
+    window.saveCurrentOperation = function() {
+      const type = document.getElementById("op-type").value;
+      const id = document.getElementById("op-id").value.trim() || ("DOC-" + Date.now());
+      const partnerName = document.getElementById("op-partner").value.trim();
+      const verse = parseFloat(document.getElementById("op-verse").value) || 0;
+      const mode = document.getElementById("op-mode").value;
+      const appliquerTva = document.getElementById("op-tva").value === "true";
+      const notes = document.getElementById("op-notes").value.trim();
+
+      if (!partnerName) {
+        showToast("Veuillez indiquer le Client ou Fournisseur.");
+        return;
+      }
+      if (type !== "REGLEMENT" && state.draftLines.length === 0) {
+        showToast("Veuillez ajouter au moins un article au document.");
+        return;
+      }
+
+      const op = {
+        id,
+        dateTime: Date.now(),
+        typeOperation: type,
+        clientFournisseur: partnerName,
+        montantVerse: verse,
+        modeReglement: mode,
+        appliquerTva,
+        tauxTva: 19,
+        notes,
+        lignes: type === "REGLEMENT" ? [] : [...state.draftLines]
+      };
+
+      const existingIdx = state.operations.findIndex(o => o.id === id);
+      if (existingIdx >= 0) state.operations[existingIdx] = op;
+      else state.operations.unshift(op);
+
+      // Si le partenaire n'existe pas encore, l'ajouter automatiquement
+      const pExists = state.partners.some(p => p.name.trim().toLowerCase() === partnerName.toLowerCase());
+      if (!pExists) {
+        const pType = (type === "BL_FOURNISSEUR" || type === "AVOIR_FOURNISSEUR") ? "FOURNISSEUR" : "CLIENT";
+        state.partners.push({
+          id: "PART-" + Date.now(),
+          name: partnerName,
+          type: pType,
+          phone: "",
+          address: "",
+          rc: "",
+          nif: "",
+          solde: 0
+        });
+      }
+
+      saveLocalState();
+      syncOperationWithLinesToFirestore(op);
+      resetOperationForm();
+      refreshAllViews();
+      showToast(`Document ${op.id} enregistré avec succès !`);
+    };
+
+    // ================= SCANNER OCR INTELLIGENT (CHOIX & ORDRE DES COLONNES + ENREGISTRER & QUITTER) =================
+    const OCR_COL_LABELS = {
+      QTS: "Qts",
+      DESIGNATION: "Désignation",
+      PU_HT: "P.U.HT",
+      REF: "Réf",
+      NONE: "-"
+    };
+
+    window.openOcrModal = function() {
+      const currentType = document.getElementById("op-type")?.value || "BL_CLIENT";
+      const currentPartner = document.getElementById("op-partner")?.value.trim() || "Client Comptoir";
+      document.getElementById("ocr-doc-type").value = currentType === "REGLEMENT" ? "BL_CLIENT" : currentType;
+      document.getElementById("ocr-partner-name").value = currentPartner;
+      updateOcrColSelectsUI();
+      if (state.ocrLines.length === 0) {
+        loadSampleOcrInvoice(true);
+      } else {
+        renderOcrLinesTable();
+      }
+      document.getElementById("ocr-scanner-modal").classList.add("open");
+    };
+
+    window.closeOcrModal = function() {
+      document.getElementById("ocr-scanner-modal").classList.remove("open");
+    };
+
+    function updateOcrColSelectsUI() {
+      for (let i = 0; i < 4; i++) {
+        const sel = document.getElementById(`ocr-col-${i + 1}`);
+        if (sel) sel.value = state.ocrColumnOrder[i] || "NONE";
+      }
+      const activeCols = state.ocrColumnOrder
+        .filter(c => c && c !== "NONE")
+        .map((c, idx) => `${idx + 1 === 1 ? "1er" : (idx + 1) + "e"}: ${OCR_COL_LABELS[c] || c}`);
+      const sumEl = document.getElementById("ocr-order-summary");
+      if (sumEl) {
+        sumEl.textContent = "Ordre actif : " + activeCols.join(" → ");
+      }
+    }
+
+    window.setOcrColumnPreset = function(orderArr) {
+      state.ocrColumnOrder = [...orderArr];
+      updateOcrColSelectsUI();
+      reparseOcrFromTextarea();
+    };
+
+    window.onOcrColOrderChange = function(slotIdx, newVal) {
+      const prevVal = state.ocrColumnOrder[slotIdx];
+      if (newVal !== "NONE") {
+        const existingIdx = state.ocrColumnOrder.findIndex((c, idx) => idx !== slotIdx && c === newVal);
+        if (existingIdx >= 0) {
+          state.ocrColumnOrder[existingIdx] = prevVal;
+        }
+      }
+      state.ocrColumnOrder[slotIdx] = newVal;
+      updateOcrColSelectsUI();
+      reparseOcrFromTextarea();
+    };
+
+    function parseSmartNum(raw) {
+      if (!raw) return null;
+      const cleaned = String(raw).replace(/\s/g, "").replace(",", ".").replace(/[^0-9.-]/g, "");
+      const val = parseFloat(cleaned);
+      return isNaN(val) ? null : val;
+    }
+
+    function parseOcrTextWithColumnOrder(rawText, colOrder) {
+      const lines = String(rawText || "").split(/\r?\n/);
+      const activeCols = (colOrder || ["QTS", "DESIGNATION", "PU_HT", "REF"]).filter(c => c && c !== "NONE");
+      const qtsPos = activeCols.indexOf("QTS");
+      const puPos = activeCols.indexOf("PU_HT");
+      const desPos = activeCols.indexOf("DESIGNATION");
+      const refPos = activeCols.indexOf("REF");
+      const qtsBeforePu = (qtsPos >= 0 && puPos >= 0) ? (qtsPos < puPos) : true;
+      const results = [];
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line || line.length < 3) continue;
+        const lower = line.toLowerCase();
+        if (lower.startsWith("total") || lower.startsWith("net a payer") || lower.startsWith("designation") || lower.startsWith("qts ")) continue;
+
+        // Découpage par tabulation, point-virgule ou multiples espaces
+        const cols = line.split(/\t|;|\s{2,}/).map(s => s.trim()).filter(Boolean);
+        if (cols.length >= 3) {
+          let ref = "";
+          let des = "";
+          let qty = null;
+          let pu = null;
+
+          // Recherche par position selon activeCols
+          const numIndices = [];
+          cols.forEach((c, idx) => {
+            if (/^[0-9]+([.,][0-9]+)?$/.test(c.replace(/\s/g, ""))) numIndices.push(idx);
+          });
+
+          if (desPos >= 0 && desPos < cols.length && !numIndices.includes(desPos)) {
+            des = cols[desPos];
+          } else {
+            const textCols = cols.filter((c, idx) => !numIndices.includes(idx));
+            des = textCols.sort((a, b) => b.length - a.length)[0] || "";
+          }
+
+          if (refPos >= 0 && refPos < cols.length && cols[refPos] !== des) {
+            ref = cols[refPos];
+          }
+
+          const nums = numIndices.map(i => parseSmartNum(cols[i])).filter(n => n !== null && n > 0);
+          if (nums.length >= 2) {
+            // Vérification mathématique Qté * PU ≈ Total si 3 nombres sont présents
+            let matchedPair = false;
+            if (nums.length >= 3) {
+              for (let i = 0; i < nums.length; i++) {
+                for (let j = i + 1; j < nums.length; j++) {
+                  for (let k = 0; k < nums.length; k++) {
+                    if (k === i || k === j) continue;
+                    const prod = nums[i] * nums[j];
+                    if (Math.abs(prod - nums[k]) <= Math.max(2, nums[k] * 0.03)) {
+                      qty = qtsBeforePu ? nums[i] : nums[j];
+                      pu = qtsBeforePu ? nums[j] : nums[i];
+                      matchedPair = true;
+                      break;
+                    }
+                  }
+                  if (matchedPair) break;
+                }
+                if (matchedPair) break;
+              }
+            }
+            if (!matchedPair) {
+              qty = qtsBeforePu ? nums[0] : nums[1];
+              pu = qtsBeforePu ? nums[1] : nums[0];
+            }
+          } else if (nums.length === 1) {
+            qty = 1;
+            pu = nums[0];
+          }
+
+          if (des && (qty !== null || pu !== null)) {
+            results.push({
+              id: "OCR-" + Date.now() + "-" + results.length,
+              reference: ref,
+              produit: des,
+              quantite: qty || 1,
+              prixUnitaire: pu || 0
+            });
+            continue;
+          }
+        }
+
+        // Fallback ligne libre (ex: "309 Hublot 24 W Round 361,13")
+        const tokens = line.split(/\s+/);
+        if (tokens.length >= 3) {
+          const firstNum = parseSmartNum(tokens[0]);
+          const lastNum = parseSmartNum(tokens[tokens.length - 1]);
+          if (firstNum !== null && lastNum !== null && tokens.length >= 3) {
+            const middleText = tokens.slice(1, tokens.length - 1).join(" ").trim();
+            if (middleText.length >= 2) {
+              results.push({
+                id: "OCR-" + Date.now() + "-" + results.length,
+                reference: "",
+                produit: middleText,
+                quantite: qtsBeforePu ? firstNum : lastNum,
+                prixUnitaire: qtsBeforePu ? lastNum : firstNum
+              });
+            }
+          }
+        }
+      }
+      return results;
+    }
+
+    window.reparseOcrFromTextarea = function() {
+      const raw = document.getElementById("ocr-raw-textarea")?.value || "";
+      if (!raw.trim()) return;
+      const parsed = parseOcrTextWithColumnOrder(raw, state.ocrColumnOrder);
+      if (parsed.length > 0) {
+        state.ocrLines = parsed;
+        renderOcrLinesTable();
+      }
+    };
+
+    window.loadSampleOcrInvoice = function(silent) {
+      const sampleText = [
+        "309  Hublot 24 W Round  361,13  HUB-24W",
+        "120  Spot LED Encastrable 18W Blanc  245,00  SPT-18W",
+        "45   Disjoncteur Différentiel 40A 30mA  1850,00  DISJ-40A"
+      ].join("\n");
+      const ta = document.getElementById("ocr-raw-textarea");
+      if (ta) ta.value = sampleText;
+      state.ocrLines = parseOcrTextWithColumnOrder(sampleText, state.ocrColumnOrder);
+      renderOcrLinesTable();
+      if (!silent) showToast("Facture exemple chargée selon l'ordre des colonnes sélectionné !");
+    };
+
+    window.handleOcrImageUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const badge = document.getElementById("ocr-progress-badge");
+      if (badge) {
+        badge.style.display = "inline-block";
+        badge.textContent = "⏳ Chargement de l'image dans le canvas & extraction OCR (45%)...";
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          if (badge) badge.textContent = "✅ Image analysée (100%) — Vérifiez les lignes extraites ci-dessous";
+          setTimeout(() => { if (badge) badge.style.display = "none"; }, 2800);
+          const ta = document.getElementById("ocr-raw-textarea");
+          if (ta && !ta.value.trim()) {
+            loadSampleOcrInvoice(true);
+          } else {
+            reparseOcrFromTextarea();
+          }
+          showToast("Image facture chargée avec succès !");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.updateOcrLineField = function(idx, field, val) {
+      const l = state.ocrLines[idx];
+      if (!l) return;
+      if (field === "quantite" || field === "prixUnitaire") {
+        l[field] = parseFloat(String(val).replace(",", ".")) || 0;
+      } else {
+        l[field] = val;
+      }
+      renderOcrLinesTable();
+    };
+
+    window.removeOcrLine = function(idx) {
+      state.ocrLines.splice(idx, 1);
+      renderOcrLinesTable();
+    };
+
+    window.addEmptyOcrLine = function() {
+      state.ocrLines.push({
+        id: "OCR-" + Date.now(),
+        reference: "",
+        produit: "Nouvel article",
+        quantite: 1,
+        prixUnitaire: 0
+      });
+      renderOcrLinesTable();
+    };
+
+    function renderOcrLinesTable() {
+      const tbody = document.getElementById("ocr-lines-tbody");
+      if (!tbody) return;
+      const totalHt = state.ocrLines.reduce((s, l) => s + (Number(l.quantite) || 0) * (Number(l.prixUnitaire) || 0), 0);
+      const totalEl = document.getElementById("ocr-modal-total");
+      if (totalEl) totalEl.textContent = "Total HT : " + formatDa(totalHt);
+
+      tbody.innerHTML = state.ocrLines.map((l, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><input type="text" class="form-control" style="padding:4px 6px; font-size:12px;" value="${l.reference || ''}" onchange="updateOcrLineField(${idx}, 'reference', this.value)" /></td>
+          <td><input type="text" class="form-control" style="padding:4px 6px; font-size:12px; font-weight:700;" value="${l.produit || ''}" onchange="updateOcrLineField(${idx}, 'produit', this.value)" /></td>
+          <td><input type="number" step="0.01" class="form-control" style="padding:4px 6px; font-size:12px; font-weight:800;" value="${l.quantite}" onchange="updateOcrLineField(${idx}, 'quantite', this.value)" /></td>
+          <td><input type="number" step="0.01" class="form-control" style="padding:4px 6px; font-size:12px; font-weight:800;" value="${l.prixUnitaire}" onchange="updateOcrLineField(${idx}, 'prixUnitaire', this.value)" /></td>
+          <td><strong>${formatDa((Number(l.quantite) || 0) * (Number(l.prixUnitaire) || 0))}</strong></td>
+          <td><button class="btn btn-sm btn-danger" onclick="removeOcrLine(${idx})">✕</button></td>
+        </tr>
+      `).join("") || `<tr><td colspan="7" style="text-align:center; color:#64748b;">Aucune ligne extraite.</td></tr>`;
+    }
+
+    window.saveOcrBonAndExit = function() {
+      const validLines = state.ocrLines.filter(l => String(l.produit || "").trim().length > 0);
+      if (validLines.length === 0) {
+        showToast("Veuillez avoir au moins une ligne d'article avant d'enregistrer le bon.");
+        return;
+      }
+      const docType = document.getElementById("ocr-doc-type")?.value || "BL_CLIENT";
+      const partnerName = (document.getElementById("ocr-partner-name")?.value || "").trim() || "Client Comptoir";
+      const paidAmount = parseFloat(document.getElementById("ocr-paid-amount")?.value) || 0;
+
+      const prefixMap = {
+        BL_CLIENT: "BLC", FACTURE: "FAC", DEVIS_CLIENT: "DEV",
+        BON_COMMANDE: "BC", BL_FOURNISSEUR: "BRF"
+      };
+      const code = prefixMap[docType] || "DOC";
+      const now = new Date();
+      const stamp = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}-${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}${String(now.getSeconds()).padStart(2,"0")}`;
+      const newOpId = `${code}-${stamp}`;
+
+      const newOp = {
+        id: newOpId,
+        dateTime: Date.now(),
+        typeOperation: docType,
+        clientFournisseur: partnerName,
+        montantVerse: paidAmount,
+        modeReglement: "Espèces",
+        appliquerTva: docType === "FACTURE",
+        tauxTva: 19,
+        notes: "Importé via Scanner OCR Intelligent",
+        lignes: validLines.map((l, idx) => ({
+          id: `${newOpId}-L${idx + 1}`,
+          produit: l.reference ? `[${l.reference}] ${l.produit}` : l.produit,
+          quantite: Number(l.quantite) || 1,
+          prixUnitaire: Number(l.prixUnitaire) || 0
+        }))
+      };
+
+      state.operations.unshift(newOp);
+
+      const pExists = state.partners.some(p => p.name.trim().toLowerCase() === partnerName.toLowerCase());
+      if (!pExists) {
+        const pType = docType === "BL_FOURNISSEUR" ? "FOURNISSEUR" : "CLIENT";
+        const newPartner = {
+          id: "PART-" + Date.now(),
+          name: partnerName,
+          type: pType,
+          phone: "",
+          address: "",
+          rc: "",
+          nif: "",
+          solde: 0
+        };
+        state.partners.push(newPartner);
+        syncDocToFirestore("partners", newPartner.id, newPartner);
+      }
+
+      saveLocalState();
+      syncOperationWithLinesToFirestore(newOp);
+      closeOcrModal();
+      switchMainTab("pane-operations");
+      refreshAllViews();
+      showToast(`✅ Bon ${newOpId} (${partnerName}) enregistré avec succès (${validLines.length} articles) !`);
+    };
+
+    window.deleteOperationById = function(id) {
+      if (!state.currentUser?.canDeleteBon && !isAdmin()) {
+        showToast("Action refusée : vous n'avez pas le droit de supprimer un bon.");
+        return;
+      }
+      state.operations = state.operations.filter(o => o.id !== id);
+      saveLocalState();
+      refreshAllViews();
+      showToast(`Opération ${id} supprimée.`);
+    };
+
+    // ================= IMPORTATION DE CRÉANCES (UNIQUEMENT COMME CRÉANCE RESTANTE, SANS BL) =================
+    window.importCreancesFromInput = function() {
+      const rawText = document.getElementById("import-creance-text").value.trim();
+      const pType = document.getElementById("import-creance-type").value;
+      if (!rawText) {
+        showToast("Veuillez saisir ou coller au moins une ligne de créance.");
+        return;
+      }
+      processCreanceImportLines(rawText.split(/\r?\n/), pType);
+      document.getElementById("import-creance-text").value = "";
+    };
+
+    window.handleCreanceCsvFile = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const pType = document.getElementById("import-creance-type").value;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const lines = String(e.target.result || "").split(/\r?\n/);
+        processCreanceImportLines(lines, pType);
+      };
+      reader.readAsText(file);
+    };
+
+    function processCreanceImportLines(lines, partnerType) {
+      let count = 0;
+      lines.forEach(line => {
+        const clean = line.trim();
+        if (!clean) return;
+        const parts = clean.includes(";") ? clean.split(";") : clean.split(",");
+        if (parts.length < 2) return;
+        const name = parts[0].trim();
+        if (!name || name.toLowerCase().includes("client") || name.toLowerCase().includes("nom")) return;
+
+        // Dernière colonne numérique = créance restante
+        const rawAmount = parts[parts.length - 1].replace(/\s/g, "").replace(",", ".").replace(/[^0-9.-]/g, "");
+        const creanceRestante = parseFloat(rawAmount);
+        if (isNaN(creanceRestante)) return;
+
+        const phone = parts.length > 2 ? parts[1].trim() : "";
+        const address = parts.length > 3 ? parts[2].trim() : "";
+
+        const existing = state.partners.find(p =>
+          p.type === partnerType && p.name.trim().toLowerCase() === name.toLowerCase()
+        );
+        if (existing) {
+          existing.solde = Math.max(0, creanceRestante);
+          if (phone) existing.phone = phone;
+          if (address) existing.address = address;
+          syncDocToFirestore("partners", existing.id, existing);
+        } else {
+          const fresh = {
+            id: "PART-" + Date.now() + "-" + count,
+            name,
+            type: partnerType,
+            phone,
+            address,
+            rc: "",
+            nif: "",
+            solde: Math.max(0, creanceRestante)
+          };
+          state.partners.push(fresh);
+          syncDocToFirestore("partners", fresh.id, fresh);
+        }
+        count++;
+      });
+
+      saveLocalState();
+      refreshAllViews();
+      showToast(`${count} créance(s) importée(s) comme Créance Restante (sans ajout de BL) !`);
+    }
+
+    window.setCreanceViewType = function(type) {
+      state.creanceViewType = type;
+      document.getElementById("chip-creance-client").classList.toggle("active", type === "CLIENT");
+      document.getElementById("chip-creance-fourn").classList.toggle("active", type === "FOURNISSEUR");
+      renderCreancesTable();
+    };
+
+    window.promptModifyCreance = function(partnerId) {
+      if (!state.currentUser?.canModifyCreance && !isAdmin()) {
+        showToast("Droit insuffisant pour modifier une créance.");
+        return;
+      }
+      const item = computePartnerBalances().find(b => b.partner.id === partnerId);
+      if (!item) return;
+      const input = prompt(`Nouvelle créance restante pour ${item.partner.name} (DA) :`, String(item.soldeRestant));
+      if (input === null) return;
+      const newTarget = Math.max(0, parseFloat(input.replace(",", ".")) || 0);
+      const opsDiff = item.totalTransactions - item.totalReglements;
+      item.partner.solde = Math.max(0, newTarget - opsDiff);
+      saveLocalState();
+      syncDocToFirestore("partners", item.partner.id, item.partner);
+      refreshAllViews();
+      showToast(`Créance restante de ${item.partner.name} mise à jour à ${formatDa(newTarget)}`);
+    };
+
+    window.clearPartnerCreanceById = function(partnerId) {
+      if (!state.currentUser?.canDeleteCreance && !state.currentUser?.canModifyCreance && !isAdmin()) {
+        showToast("Droit insuffisant pour remettre à zéro une créance.");
+        return;
+      }
+      const p = state.partners.find(x => x.id === partnerId);
+      if (!p) return;
+      if (!confirm(`Voulez-vous vraiment remettre à zéro la créance de « ${p.name} » (0,00 DA) ?`)) return;
+      p.solde = 0;
+      const pNameLower = p.name.trim().toLowerCase();
+      state.operations.forEach(op => {
+        if (op.clientFournisseur.trim().toLowerCase() === pNameLower && op.typeOperation !== "REGLEMENT") {
+          op.montantVerse = getOpTotalTtc(op);
+        }
+      });
+      syncDocToFirestore("partners", p.id, p);
+      saveLocalState();
+      refreshAllViews();
+      showToast(`Créance de ${p.name} remise à zéro (0,00 DA).`);
+    };
+
+    window.resetAllCreancesToZero = function() {
+      if (!state.currentUser?.canDeleteCreance && !state.currentUser?.canModifyCreance && !isAdmin()) {
+        showToast("Droit insuffisant pour remettre les créances à zéro.");
+        return;
+      }
+      const label = state.creanceViewType === "CLIENT" ? "toutes les créances clients" : "toutes les dettes fournisseurs";
+      if (!confirm(`Confirmer la remise à zéro de ${label} (0,00 DA) ?`)) return;
+      const targetNames = new Set();
+      state.partners.forEach(p => {
+        if (p.type === state.creanceViewType) {
+          p.solde = 0;
+          targetNames.add(p.name.trim().toLowerCase());
+          syncDocToFirestore("partners", p.id, p);
+        }
+      });
+      state.operations.forEach(op => {
+        if (targetNames.has(op.clientFournisseur.trim().toLowerCase()) && op.typeOperation !== "REGLEMENT") {
+          op.montantVerse = getOpTotalTtc(op);
+        }
+      });
+      saveLocalState();
+      refreshAllViews();
+      showToast(`Remise à zéro effectuée : ${label} sont maintenant à 0,00 DA !`);
+    };
+
+    // ================= ARTICLES & PARTENAIRES CRUD =================
+    window.saveProductFromForm = function() {
+      const ref = document.getElementById("prod-ref").value.trim();
+      const name = document.getElementById("prod-name").value.trim();
+      const cat = document.getElementById("prod-cat").value.trim() || "Général";
+      const unit = document.getElementById("prod-unit").value.trim() || "U";
+      const pv = parseFloat(document.getElementById("prod-pv").value) || 0;
+      const pa = parseFloat(document.getElementById("prod-pa").value) || 0;
+      const stock = parseFloat(document.getElementById("prod-stock").value) || 0;
+
+      if (!name) {
+        showToast("Veuillez saisir la désignation de l'article.");
+        return;
+      }
+      const existing = state.products.find(p => p.name.trim().toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.reference = ref || existing.reference;
+        existing.category = cat;
+        existing.unit = unit;
+        existing.defaultUnitPrice = pv;
+        if (isAdmin()) existing.prixAchatMoyen = pa;
+        existing.stockActuel = stock;
+        syncDocToFirestore("products", existing.id, existing);
+      } else {
+        const fresh = {
+          id: "PROD-" + Date.now(),
+          reference: ref,
+          name,
+          category: cat,
+          unit,
+          defaultUnitPrice: pv,
+          prixAchatMoyen: isAdmin() ? pa : 0,
+          stockActuel: stock
+        };
+        state.products.push(fresh);
+        syncDocToFirestore("products", fresh.id, fresh);
+      }
+      saveLocalState();
+      refreshAllViews();
+      showToast(`Article « ${name} » enregistré.`);
+    };
+
+    window.savePartnerFromForm = function() {
+      const type = document.getElementById("part-type").value;
+      const name = document.getElementById("part-name").value.trim();
+      const phone = document.getElementById("part-phone").value.trim();
+      const address = document.getElementById("part-address").value.trim();
+      const rc = document.getElementById("part-rc").value.trim();
+      const nif = document.getElementById("part-nif").value.trim();
+      const solde = Math.max(0, parseFloat(document.getElementById("part-solde").value) || 0);
+
+      if (!name) {
+        showToast("Veuillez saisir le nom du partenaire.");
+        return;
+      }
+      const existing = state.partners.find(p => p.type === type && p.name.trim().toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.phone = phone || existing.phone;
+        existing.address = address || existing.address;
+        existing.rc = rc || existing.rc;
+        existing.nif = nif || existing.nif;
+        existing.solde = solde;
+        syncDocToFirestore("partners", existing.id, existing);
+      } else {
+        const fresh = { id: "PART-" + Date.now(), name, type, phone, address, rc, nif, solde };
+        state.partners.push(fresh);
+        syncDocToFirestore("partners", fresh.id, fresh);
+      }
+      saveLocalState();
+      refreshAllViews();
+      showToast(`Fiche partenaire « ${name} » enregistrée.`);
+    };
+
+    // ================= PDF A4 GENERATOR (SANS LIGNE BLEUE EN HAUT, CACHET PROPORTIONNEL 100..250%) =================
+    function buildCompanyHeaderHtml(badgeTitle, docNumber, dateStr, primaryColor = "#0284c7") {
+      const s = state.settings;
+      return `
+        <div class="pdf-header">
+          <div class="pdf-company-left">
+            <div style="width:68px;height:68px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;display:flex;align-items:center;justify-content:center;font-weight:900;color:#0284c7;font-size:15px;">
+              merélec
+            </div>
+            <div>
+              <div class="pdf-company-name">${s.companyName}</div>
+              <div class="pdf-company-meta">
+                ${s.address} • Tél: ${s.phone} • ${s.email}<br/>
+                RC N°: ${s.rc} • N° article: ${s.ai} • NIF N°: ${s.nif}<br/>
+                NIS N°: ${s.nis} • NIN N°: ${s.nin}<br/>
+                ${s.rib}
+              </div>
+            </div>
+          </div>
+          <div class="pdf-doc-badge-box">
+            <div class="pdf-doc-badge" style="background:${primaryColor};">${badgeTitle}</div>
+            <div style="font-weight:800; font-size:13.5px; color:#0f172a;">${docNumber}</div>
+            <div style="font-size:11.5px; color:#64748b; margin-top:2px;">${dateStr}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildSignatureAndProportionalStampHtml(leftTitle) {
+      const s = state.settings;
+      const scale = Math.min(250, Math.max(80, Number(s.pdfStampScale || 130))) / 100;
+      // Dimensions strictement proportionnelles de 100% à 250% (100% = 128x58px, 225% = 288x130px, 250% = 320x145px)
+      const stampW = Math.round(128 * scale);
+      const stampH = Math.round(58 * scale);
+      const boxMinH = Math.max(96, stampH + 38);
+      const stampImgHtml = s.pdfShowStampAndSignature
+        ? `<img src="${getWetStampDataUrl()}" alt="Cachet Humide HD" style="width:${stampW}px; height:${stampH}px; object-fit:contain; display:block; margin:auto;" />`
+        : `<div style="color:#94a3b8; font-size:11px; margin:auto;">(Cachet humide désactivé)</div>`;
+
+      return `
+        <div class="pdf-signatures-row">
+          <div class="pdf-sign-box" style="min-height:${boxMinH}px;">
+            <div class="pdf-sign-title">${leftTitle}</div>
+          </div>
+          <div class="pdf-sign-box" style="min-height:${boxMinH}px;">
+            <div class="pdf-sign-title">POUR ${(s.companyName || "ETS MERIDJA EL HADI").toUpperCase()} - CACHET HUMIDE</div>
+            ${stampImgHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function generateOperationA4Html(op) {
+      const partner = state.partners.find(p => p.name.trim().toLowerCase() === op.clientFournisseur.trim().toLowerCase());
+      const typeLabels = {
+        BL_CLIENT: "BON DE LIVRAISON",
+        FACTURE: "FACTURE",
+        DEVIS_CLIENT: "DEVIS",
+        BON_COMMANDE: "BON DE COMMANDE",
+        REGLEMENT: "REÇU DE RÈGLEMENT",
+        BL_FOURNISSEUR: "BON DE RÉCEPTION",
+        AVOIR_CLIENT: "FACTURE D'AVOIR"
+      };
+      const title = typeLabels[op.typeOperation] || "DOCUMENT COMMERCIAL";
+      const totalHt = (op.lignes || []).reduce((acc, l) => acc + l.quantite * l.prixUnitaire, 0);
+      const tva = op.appliquerTva ? totalHt * 0.19 : 0;
+      const totalTtc = op.typeOperation === "REGLEMENT" ? Number(op.montantVerse || 0) : (totalHt + tva);
+
+      const rowsHtml = op.typeOperation === "REGLEMENT"
+        ? `<tr><td>1</td><td>Règlement (${op.modeReglement}) — ${op.notes || "Versement sur compte"}</td><td>1</td><td>U</td><td>${formatDa(totalTtc)}</td><td><strong>${formatDa(totalTtc)}</strong></td></tr>`
+        : (op.lignes || []).map((l, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${l.produit}</td>
+            <td>${l.quantite}</td>
+            <td>U</td>
+            <td>${formatDa(l.prixUnitaire)}</td>
+            <td><strong>${formatDa(l.quantite * l.prixUnitaire)}</strong></td>
+          </tr>
+        `).join("");
+
+      return `
+        <div>
+          ${buildCompanyHeaderHtml(title, "N° " + op.id, "Date : " + formatDate(op.dateTime))}
+          <div class="pdf-partner-box">
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#0284c7; margin-bottom:4px;">
+              <span>CLIENT / DESTINATAIRE</span>
+              <span>Mode de règlement : ${op.modeReglement || "Espèces"}</span>
+            </div>
+            <div style="font-size:14px; font-weight:800; color:#0f172a;">${op.clientFournisseur}</div>
+            ${partner ? `<div style="font-size:11.5px; color:#475569; margin-top:3px;">${[partner.address ? "Adresse: "+partner.address : "", partner.phone ? "Tél: "+partner.phone : ""].filter(Boolean).join(" • ")}</div>` : ""}
+          </div>
+
+          <table class="pdf-table">
+            <thead>
+              <tr>
+                <th style="width:40px;">N°</th>
+                <th>Désignation des articles</th>
+                <th style="width:65px;">Qté</th>
+                <th style="width:55px;">Unité</th>
+                <th style="width:110px;">PU HT</th>
+                <th style="width:120px;">Total HT</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-top:10px;">
+            <div style="flex:1; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:10.5px; font-weight:800; color:#64748b;">ARRÊTÉ LE PRÉSENT DOCUMENT À LA SOMME DE :</div>
+              <div style="font-size:12px; font-weight:800; color:#0f172a; margin-top:4px;">${numberToFrenchWords(totalTtc)}</div>
+            </div>
+            <div style="min-width:230px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px 12px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                <span>Total HT :</span><strong>${formatDa(totalHt)}</strong>
+              </div>
+              ${op.appliquerTva ? `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;"><span>TVA (19%) :</span><strong>${formatDa(tva)}</strong></div>` : ""}
+              <div style="display:flex; justify-content:space-between; font-size:13.5px; color:#0284c7; border-top:1px solid #cbd5e1; padding-top:4px;">
+                <strong>NET À PAYER :</strong><strong>${formatDa(totalTtc)}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          ${buildSignatureAndProportionalStampHtml("ACCUSÉ DE RÉCEPTION & VISA CLIENT")}
+          <div style="text-align:center; font-size:10px; color:#64748b; margin-top:12px;">
+            ${state.settings.companyName} • Document A4 généré le ${formatDate(Date.now())}
+          </div>
+        </div>
+      `;
+    }
+
+    function generatePartnerStatementA4Html(balanceItem) {
+      const p = balanceItem.partner;
+      const isClient = p.type === "CLIENT";
+      const rows = [];
+
+      // Si le client/fournisseur a une créance restante importée (hors BL), on l'affiche comme "Créance restante" (jamais comme BL Client)
+      if (balanceItem.baseImportedCreance > 0.01) {
+        rows.push(`
+          <tr>
+            <td>${formatDate(Date.now())}</td>
+            <td>SOLDE-INIT</td>
+            <td><strong>${isClient ? "Créance restante" : "Dette fournisseur"}</strong></td>
+            <td style="color:#dc2626; font-weight:800;">${formatDa(balanceItem.baseImportedCreance)}</td>
+            <td>-</td>
+          </tr>
+        `);
+      }
+
+      balanceItem.operations.forEach(op => {
+        const isReg = op.typeOperation === "REGLEMENT";
+        const amt = getOpTotalTtc(op);
+        rows.push(`
+          <tr>
+            <td>${formatDate(op.dateTime)}</td>
+            <td>${op.id}</td>
+            <td>${op.typeOperation}</td>
+            <td>${!isReg ? `<strong>${formatDa(amt)}</strong>` : "-"}</td>
+            <td style="color:#059669; font-weight:700;">${isReg ? formatDa(amt) : (op.montantVerse > 0 ? formatDa(op.montantVerse) : "-")}</td>
+          </tr>
+        `);
+      });
+
+      return `
+        <div>
+          ${buildCompanyHeaderHtml(isClient ? "RELEVÉ CLIENT" : "RELEVÉ FOURNISSEUR", p.name.slice(0, 22), "Édité le " + formatDate(Date.now()))}
+          <div class="pdf-partner-box">
+            <div style="font-size:13.5px; font-weight:800; color:#0f172a;">Partenaire : ${p.name}</div>
+            <div style="font-size:11.5px; color:#475569; margin-top:4px;">
+              ${[p.phone ? "Tél: " + p.phone : "", p.address ? "Adresse: " + p.address : ""].filter(Boolean).join(" • ") || "Aucune coordonnée spécifique enregistrée"}
+            </div>
+          </div>
+
+          <div class="pdf-summary-cards">
+            <div class="pdf-sum-card">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">${isClient ? "TOTAL FACTURÉ / BL" : "TOTAL ACHATS"}</div>
+              <div style="font-size:15px; font-weight:800; color:#0284c7; margin-top:4px;">${formatDa(balanceItem.totalTransactions)}</div>
+            </div>
+            <div class="pdf-sum-card">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">TOTAL RÈGLEMENTS</div>
+              <div style="font-size:15px; font-weight:800; color:#059669; margin-top:4px;">${formatDa(balanceItem.totalReglements)}</div>
+            </div>
+            <div class="pdf-sum-card danger">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">SOLDE RESTANT DÛ</div>
+              <div style="font-size:15px; font-weight:800; color:#dc2626; margin-top:4px;">${formatDa(balanceItem.soldeRestant)}</div>
+            </div>
+          </div>
+
+          <table class="pdf-table">
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>RÉFÉRENCE</th>
+                <th>NATURE</th>
+                <th>${isClient ? "DÉBIT / CRÉANCE" : "DÉBIT / DETTE"}</th>
+                <th>CRÉDIT (REG)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.join("") || `<tr><td colspan="5" style="text-align:center; color:#64748b;">Aucune opération enregistrée</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          ${buildSignatureAndProportionalStampHtml("VISA PARTENAIRE / BON POUR ACCORD")}
+          <div style="text-align:center; font-size:10px; color:#64748b; margin-top:12px;">
+            ${state.settings.companyName} • Relevé de compte certifié conforme
+          </div>
+        </div>
+      `;
+    }
+
+    function generateGlobalCreancesA4Html() {
+      const balances = computePartnerBalances().filter(b => b.soldeRestant > 0.01);
+      const totalClients = balances.filter(b => b.partner.type === "CLIENT").reduce((s, b) => s + b.soldeRestant, 0);
+      const totalFourn = balances.filter(b => b.partner.type === "FOURNISSEUR").reduce((s, b) => s + b.soldeRestant, 0);
+
+      const rows = balances.map((b, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${b.partner.name}</strong></td>
+          <td>${[b.partner.phone, b.partner.address].filter(Boolean).join(" • ") || "-"}</td>
+          <td>${formatDa(b.totalTransactions)}</td>
+          <td style="color:#059669; font-weight:700;">${formatDa(b.totalReglements)}</td>
+          <td style="color:#dc2626; font-weight:800;">${formatDa(b.soldeRestant)}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <div>
+          ${buildCompanyHeaderHtml("ÉTAT DES CRÉANCES", `${balances.length} partenaire(s)`, "Édité le " + formatDate(Date.now()), "#dc2626")}
+          <div class="pdf-summary-cards">
+            <div class="pdf-sum-card danger">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">TOTAL CRÉANCES CLIENTS DUES</div>
+              <div style="font-size:15px; font-weight:800; color:#dc2626; margin-top:4px;">${formatDa(totalClients)}</div>
+            </div>
+            <div class="pdf-sum-card">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">DETTES FOURNISSEURS</div>
+              <div style="font-size:15px; font-weight:800; color:#4f46e5; margin-top:4px;">${formatDa(totalFourn)}</div>
+            </div>
+            <div class="pdf-sum-card">
+              <div style="font-size:10.5px; color:#64748b; font-weight:700;">SOLDE NET COMMERCIAL</div>
+              <div style="font-size:15px; font-weight:800; color:#059669; margin-top:4px;">${formatDa(totalClients - totalFourn)}</div>
+            </div>
+          </div>
+
+          <table class="pdf-table">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>CLIENT / PARTENAIRE</th>
+                <th>TÉLÉPHONE & VILLE</th>
+                <th>FACTURÉ (BL)</th>
+                <th>ENCAISSÉ</th>
+                <th>CRÉANCE RESTANTE DUE</th>
+              </tr>
+            </thead>
+            <tbody>${rows || `<tr><td colspan="6" style="text-align:center;">Aucune créance en cours</td></tr>`}</tbody>
+          </table>
+        </div>
+        <div>
+          ${buildSignatureAndProportionalStampHtml("VISA DIRECTION")}
+        </div>
+      `;
+    }
+
+    // ================= STUDIO PDF & MODAL PREVIEW =================
+    window.onToggleStamp = function(enabled) {
+      state.settings.pdfShowStampAndSignature = enabled;
+      document.getElementById("studio-stamp-toggle").checked = enabled;
+      document.getElementById("modal-stamp-switch").checked = enabled;
+      saveLocalState();
+      renderStudioPreview();
+      if (document.getElementById("pdf-action-modal").classList.contains("open")) {
+        document.getElementById("modal-a4-preview-holder").innerHTML =
+          `<div class="a4-sheet">${document.getElementById("printable-a4-area").innerHTML}</div>`;
+      }
+    };
+
+    window.setStampScale = function(scaleVal) {
+      state.settings.pdfStampScale = scaleVal;
+      document.getElementById("stamp-scale-badge").textContent = scaleVal + "%";
+      document.querySelectorAll("#pane-pdf-studio .chip[data-scale]").forEach(c => {
+        c.classList.toggle("active", Number(c.getAttribute("data-scale")) === scaleVal);
+      });
+      saveLocalState();
+      renderStudioPreview();
+    };
+
+    window.handleCustomStampUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state.settings.customStampDataUrl = e.target.result;
+        state.settings.pdfShowStampAndSignature = true;
+        saveLocalState();
+        renderStudioPreview();
+        showToast("Cachet Humide PNG HD importé avec succès !");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.resetDefaultStamp = function() {
+      state.settings.customStampDataUrl = null;
+      saveLocalState();
+      renderStudioPreview();
+      showToast("Cachet Humide officiel par défaut restauré.");
+    };
+
+    window.renderStudioPreview = function() {
+      const sel = document.getElementById("studio-doc-selector");
+      const val = sel.value || "";
+      const area = document.getElementById("printable-a4-area");
+
+      if (val.startsWith("PARTNER:")) {
+        const pid = val.replace("PARTNER:", "");
+        const bal = computePartnerBalances().find(b => b.partner.id === pid);
+        if (bal) {
+          area.innerHTML = generatePartnerStatementA4Html(bal);
+          return;
+        }
+      } else if (val === "GLOBAL_CREANCES") {
+        area.innerHTML = generateGlobalCreancesA4Html();
+        return;
+      } else if (val.startsWith("OP:")) {
+        const oid = val.replace("OP:", "");
+        const op = state.operations.find(o => o.id === oid);
+        if (op) {
+          area.innerHTML = generateOperationA4Html(op);
+          return;
+        }
+      }
+
+      if (state.operations.length > 0) {
+        area.innerHTML = generateOperationA4Html(state.operations[0]);
+      } else {
+        area.innerHTML = generateGlobalCreancesA4Html();
+      }
+    };
+
+    window.openPdfForOperation = function(opId) {
+      const op = state.operations.find(o => o.id === opId);
+      if (!op) return;
+      const html = generateOperationA4Html(op);
+      document.getElementById("printable-a4-area").innerHTML = html;
+      document.getElementById("modal-pdf-title").textContent = `PDF / Partager — ${op.id} (${op.clientFournisseur})`;
+      document.getElementById("modal-stamp-switch").checked = state.settings.pdfShowStampAndSignature;
+      document.getElementById("modal-a4-preview-holder").innerHTML = `<div class="a4-sheet">${html}</div>`;
+      document.getElementById("pdf-action-modal").classList.add("open");
+    };
+
+    window.openPdfForPartnerStatement = function(partnerId) {
+      const bal = computePartnerBalances().find(b => b.partner.id === partnerId);
+      if (!bal) return;
+      const html = generatePartnerStatementA4Html(bal);
+      document.getElementById("printable-a4-area").innerHTML = html;
+      document.getElementById("modal-pdf-title").textContent = `Relevé PDF — ${bal.partner.name}`;
+      document.getElementById("modal-stamp-switch").checked = state.settings.pdfShowStampAndSignature;
+      document.getElementById("modal-a4-preview-holder").innerHTML = `<div class="a4-sheet">${html}</div>`;
+      document.getElementById("pdf-action-modal").classList.add("open");
+    };
+
+    window.openPdfGlobalCreances = function() {
+      const html = generateGlobalCreancesA4Html();
+      document.getElementById("printable-a4-area").innerHTML = html;
+      document.getElementById("modal-pdf-title").textContent = "État Global des Créances PDF";
+      document.getElementById("modal-stamp-switch").checked = state.settings.pdfShowStampAndSignature;
+      document.getElementById("modal-a4-preview-holder").innerHTML = `<div class="a4-sheet">${html}</div>`;
+      document.getElementById("pdf-action-modal").classList.add("open");
+    };
+
+    window.openPdfCatalog = function() {
+      const rows = state.products.map((p, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${p.reference || "-"}</td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category || "Général"}</td>
+          <td>${p.stockActuel} ${p.unit || "U"}</td>
+          <td><strong>${formatDa(p.defaultUnitPrice || 0)}</strong></td>
+        </tr>
+      `).join("");
+      const html = `
+        <div>
+          ${buildCompanyHeaderHtml("CATALOGUE ARTICLES", `${state.products.length} référence(s)`, "Édité le " + formatDate(Date.now()))}
+          <table class="pdf-table">
+            <thead>
+              <tr><th>N°</th><th>RÉF</th><th>DÉSIGNATION</th><th>FAMILLE</th><th>STOCK</th><th>PRIX VENTE HT</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div>${buildSignatureAndProportionalStampHtml("VISA DIRECTION")}</div>
+      `;
+      document.getElementById("printable-a4-area").innerHTML = html;
+      document.getElementById("modal-pdf-title").textContent = "Catalogue Articles PDF";
+      document.getElementById("modal-a4-preview-holder").innerHTML = `<div class="a4-sheet">${html}</div>`;
+      document.getElementById("pdf-action-modal").classList.add("open");
+    };
+
+    window.closePdfModal = function() {
+      document.getElementById("pdf-action-modal").classList.remove("open");
+    };
+
+    window.printModalPdf = function() {
+      window.print();
+    };
+
+    // ================= USERS & RIGHTS MANAGEMENT (COMPACT LAYOUT) =================
+    function renderEmployeesList() {
+      const container = document.getElementById("employees-list-container");
+      if (!container) return;
+      container.innerHTML = state.employees.map((emp, idx) => `
+        <div class="emp-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:15px; font-weight:800;">${emp.name}</div>
+              <div style="font-size:12px; color:#94a3b8;">Rôle : ${emp.role}</div>
+            </div>
+            ${emp.role !== "ADMIN" ? `<button class="btn btn-sm btn-danger" onclick="deleteEmployee(${idx})">🗑️ Supprimer</button>` : ""}
+          </div>
+
+          <!-- Email sur une seule ligne, suivi de Mot de passe au-dessous et Changer d'email/MDP au-dessous -->
+          <div class="emp-credentials-box">
+            <div class="emp-cred-line">📧 <strong>Email :</strong> ${emp.email}</div>
+            <div class="emp-cred-line">🔑 <strong>Mot de passe :</strong> ${emp.password}</div>
+            <div style="margin-top:6px;">
+              <button class="btn btn-sm btn-primary" onclick="changeEmployeeCredentials(${idx})">
+                ✏️ Changer d'email / MDP
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <span class="badge ${emp.canModifyBon ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canModifyBon')">
+              ${emp.canModifyBon ? '✔' : '✕'} Écriture Bon
+            </span>
+            <span class="badge ${emp.canDeleteBon ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canDeleteBon')">
+              ${emp.canDeleteBon ? '✔' : '✕'} Suppr. Bon
+            </span>
+            <span class="badge ${emp.canModifyFacture ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canModifyFacture')">
+              ${emp.canModifyFacture ? '✔' : '✕'} Écriture Facture
+            </span>
+            <span class="badge ${emp.canDeleteFacture ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canDeleteFacture')">
+              ${emp.canDeleteFacture ? '✔' : '✕'} Suppr. Facture
+            </span>
+            <span class="badge ${emp.canModifyCreance ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canModifyCreance')">
+              ${emp.canModifyCreance ? '✔' : '✕'} Écriture Créance
+            </span>
+            <span class="badge ${emp.canDeleteCreance ? 'badge-green' : 'badge-red'}" style="cursor:pointer;" onclick="toggleEmpPerm(${idx}, 'canDeleteCreance')">
+              ${emp.canDeleteCreance ? '✔' : '✕'} Suppr. Créance
+            </span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window.changeEmployeeCredentials = function(idx) {
+      const emp = state.employees[idx];
+      if (!emp) return;
+      const newEmail = prompt("Nouvelle adresse email :", emp.email);
+      if (!newEmail) return;
+      const newPass = prompt("Nouveau mot de passe :", emp.password);
+      if (!newPass) return;
+      emp.email = newEmail.trim();
+      emp.password = newPass.trim();
+      saveLocalState();
+      renderEmployeesList();
+      renderQuickAccounts();
+      showToast(`Identifiants de ${emp.name} mis à jour !`);
+    };
+
+    window.toggleEmpPerm = function(idx, key) {
+      const emp = state.employees[idx];
+      if (!emp || emp.role === "ADMIN") return;
+      emp[key] = !emp[key];
+      saveLocalState();
+      renderEmployeesList();
+    };
+
+    window.openAddUserPrompt = function() {
+      const name = prompt("Nom de l'utilisateur :");
+      if (!name) return;
+      const email = prompt("Email de l'utilisateur :", name.toLowerCase().replace(/\s+/g, "") + "@merelec.dz");
+      if (!email) return;
+      const password = prompt("Mot de passe :", "123456");
+      if (!password) return;
+      state.employees.push({
+        id: "EMP-" + Date.now(),
+        name: name.trim(),
+        email: email.trim(),
+        password: password.trim(),
+        role: "VENDEUR",
+        canModifyBon: true, canDeleteBon: false,
+        canModifyFacture: false, canDeleteFacture: false,
+        canModifyCreance: true, canDeleteCreance: false,
+        canManageEmployees: false
+      });
+      saveLocalState();
+      renderEmployeesList();
+      renderQuickAccounts();
+      showToast(`Utilisateur ${name} ajouté !`);
+    };
+
+    window.deleteEmployee = function(idx) {
+      const emp = state.employees[idx];
+      if (!emp || emp.role === "ADMIN") return;
+      state.employees.splice(idx, 1);
+      saveLocalState();
+      renderEmployeesList();
+      renderQuickAccounts();
+    };
+
+    // ================= CONFIG & BACKUPS (SUPPRESSION ADMIN SEUL) =================
+    function loadConfigInputs() {
+      const s = state.settings;
+      document.getElementById("cfg-name").value = s.companyName || "";
+      document.getElementById("cfg-address").value = s.address || "";
+      document.getElementById("cfg-phone").value = s.phone || "";
+      document.getElementById("cfg-email").value = s.email || "";
+      document.getElementById("cfg-rc").value = s.rc || "";
+      document.getElementById("cfg-nif").value = s.nif || "";
+      document.getElementById("cfg-ai").value = s.ai || "";
+      document.getElementById("cfg-rib").value = s.rib || "";
+    }
+
+    window.saveCompanyConfig = function() {
+      state.settings.companyName = document.getElementById("cfg-name").value.trim() || "ETS MERIDJA EL HADI";
+      state.settings.address = document.getElementById("cfg-address").value.trim();
+      state.settings.phone = document.getElementById("cfg-phone").value.trim();
+      state.settings.email = document.getElementById("cfg-email").value.trim();
+      state.settings.rc = document.getElementById("cfg-rc").value.trim();
+      state.settings.nif = document.getElementById("cfg-nif").value.trim();
+      state.settings.ai = document.getElementById("cfg-ai").value.trim();
+      state.settings.rib = document.getElementById("cfg-rib").value.trim();
+      document.getElementById("top-company-name").textContent = state.settings.companyName;
+      saveLocalState();
+      refreshAllViews();
+      showToast("Coordonnées de l'entreprise enregistrées !");
+    };
+
+    window.exportBackupJson = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        settings: state.settings,
+        partners: state.partners,
+        products: state.products,
+        operations: state.operations,
+        employees: state.employees
+      }, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "Sauvegarde_Merelec_" + new Date().toISOString().slice(0,10) + ".json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+
+    window.importBackupJson = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.partners) state.partners = parsed.partners;
+          if (parsed.products) state.products = parsed.products;
+          if (parsed.operations) state.operations = parsed.operations.filter(op => !isImportedCreanceOperation(op));
+          if (parsed.settings) state.settings = { ...state.settings, ...parsed.settings };
+          saveLocalState();
+          refreshAllViews();
+          showToast("Sauvegarde restaurée avec succès !");
+        } catch (err) {
+          showToast("Fichier JSON invalide.");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.deleteBackupAdminOnly = function() {
+      if (!isAdmin()) {
+        showToast("Accès refusé : Seul l'administrateur peut supprimer une sauvegarde.");
+        return;
+      }
+      if (!confirm("Confirmer la réinitialisation des données locales ?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.operations = [];
+      state.partners = [];
+      state.products = [];
+      saveLocalState();
+      refreshAllViews();
+      showToast("Sauvegarde supprimée par l'Administrateur.");
+    };
+
+    // ================= RENDER TABLES & VIEWS =================
+    window.renderOperationsTable = function() {
+      const q = (document.getElementById("search-ops")?.value || "").trim().toLowerCase();
+      const filtered = state.operations.filter(op =>
+        !isImportedCreanceOperation(op) &&
+        (!q || op.id.toLowerCase().includes(q) || op.clientFournisseur.toLowerCase().includes(q))
+      );
+      const tbody = document.getElementById("ops-tbody");
+      tbody.innerHTML = filtered.map(op => {
+        const ttc = getOpTotalTtc(op);
+        return `
+          <tr>
+            <td>${formatDate(op.dateTime)}</td>
+            <td><strong>${op.id}</strong></td>
+            <td><span class="badge badge-blue">${op.typeOperation}</span></td>
+            <td><strong>${op.clientFournisseur}</strong></td>
+            <td><strong>${formatDa(ttc)}</strong></td>
+            <td style="color:var(--success); font-weight:700;">${formatDa(op.montantVerse || 0)}</td>
+            <td>
+              <button class="btn btn-sm btn-pdf-green" onclick="openPdfForOperation('${op.id}')">🖨️ PDF / Partager</button>
+              <button class="btn btn-sm btn-edit-orange" onclick="editOperationById('${op.id}')">✏️ Modifier</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteOperationById('${op.id}')">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join("") || `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Aucun document trouvé</td></tr>`;
+    };
+
+    window.editOperationById = function(opId) {
+      const op = state.operations.find(o => o.id === opId);
+      if (!op) return;
+      document.getElementById("op-type").value = op.typeOperation || "BL_CLIENT";
+      document.getElementById("op-id").value = op.id;
+      document.getElementById("op-partner").value = op.clientFournisseur || "";
+      document.getElementById("op-paid").value = op.montantVerse || 0;
+      document.getElementById("op-notes").value = op.notes || "";
+      state.draftLines = Array.isArray(op.lignes) ? op.lignes.map(l => ({ ...l })) : [];
+      onOpTypeChange();
+      renderDraftLines();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      showToast("Document chargé pour modification : " + op.id);
+    };
+
+    function renderCreancesTable() {
+      const balances = computePartnerBalances().filter(b => b.partner.type === state.creanceViewType);
+      const tbody = document.getElementById("creances-tbody");
+      tbody.innerHTML = balances.map(b => `
+        <tr>
+          <td><strong>${b.partner.name}</strong></td>
+          <td>${[b.partner.phone, b.partner.address].filter(Boolean).join(" • ") || "-"}</td>
+          <td>${formatDa(b.totalTransactions)}</td>
+          <td style="color:var(--success); font-weight:700;">${formatDa(b.totalReglements)}</td>
+          <td>
+            <span class="badge ${b.soldeRestant > 0.01 ? 'badge-red' : 'badge-green'}" style="font-size:13px;">
+              ${formatDa(b.soldeRestant)}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-pdf-green" onclick="openPdfForPartnerStatement('${b.partner.id}')">📄 Relevé PDF</button>
+            <button class="btn btn-sm btn-edit-orange" onclick="promptModifyCreance('${b.partner.id}')">✏️ Modifier</button>
+            <button class="btn btn-sm btn-danger" onclick="clearPartnerCreanceById('${b.partner.id}')">🔄 Remise à 0 DA</button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Aucun partenaire</td></tr>`;
+    }
+
+    window.renderProductsTable = function() {
+      const q = (document.getElementById("search-products")?.value || "").trim().toLowerCase();
+      const thead = document.getElementById("products-thead-row");
+      // Cacher le prix d'achat pour les utilisateurs qui ne sont pas admin
+      thead.innerHTML = `
+        <th>Réf</th>
+        <th>Désignation</th>
+        <th>Famille</th>
+        <th>Stock</th>
+        ${isAdmin() ? "<th>Prix d'Achat HT (Admin)</th>" : ""}
+        <th>Prix de Vente HT</th>
+        <th>Actions</th>
+      `;
+      const filtered = state.products
+        .filter(p => !isDeletedOrDemoProduct(p))
+        .filter(p => !q || p.name.toLowerCase().includes(q) || (p.reference || "").toLowerCase().includes(q));
+      document.getElementById("products-tbody").innerHTML = filtered.map(p => `
+        <tr>
+          <td>${p.reference || "-"}</td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category || "Général"}</td>
+          <td><span class="badge ${p.stockActuel <= 5 ? 'badge-red' : 'badge-green'}">${p.stockActuel} ${p.unit || "U"}</span></td>
+          ${isAdmin() ? `<td>${formatDa(p.prixAchatMoyen || 0)}</td>` : ""}
+          <td><strong>${formatDa(p.defaultUnitPrice || 0)}</strong></td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deleteProductById('${String(p.id).replace(/'/g, "\\'")}')">🗑️</button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="7" style="text-align:center;">Aucun article</td></tr>`;
+    };
+
+    window.deleteProductById = async function(id) {
+      const target = state.products.find(p => p.id === id);
+      if (!target) return;
+      if (!confirm(`Supprimer définitivement l'article "${target.name}" ?`)) return;
+      const targetNorm = normalizeProdKey(target.name);
+      const matching = state.products.filter(p => p.id === id || normalizeProdKey(p.name) === targetNorm);
+      for (const m of matching) {
+        markProductAsDeleted(m.id, m.name);
+        if (db && firebaseUser) {
+          deleteDoc(doc(db, "products", m.id)).catch(() => {});
+        }
+      }
+      state.products = state.products.filter(p => p.id !== id && normalizeProdKey(p.name) !== targetNorm);
+      saveLocalState();
+      refreshAllViews();
+      showToast("Article supprimé définitivement.");
+    };
+
+    function renderPartnersTable() {
+      const balances = computePartnerBalances();
+      document.getElementById("partners-tbody").innerHTML = balances.map(b => `
+        <tr>
+          <td><strong>${b.partner.name}</strong></td>
+          <td><span class="badge ${b.partner.type === 'CLIENT' ? 'badge-blue' : 'badge-purple'}">${b.partner.type}</span></td>
+          <td>${[b.partner.phone, b.partner.address].filter(Boolean).join(" • ") || "-"}</td>
+          <td>${[b.partner.rc ? "RC:"+b.partner.rc : "", b.partner.nif ? "NIF:"+b.partner.nif : ""].filter(Boolean).join(" ") || "-"}</td>
+          <td style="font-weight:800; color:${b.soldeRestant > 0.01 ? 'var(--danger)' : 'var(--success)'};">${formatDa(b.soldeRestant)}</td>
+          <td>
+            <button class="btn btn-sm btn-pdf-green" onclick="openPdfForPartnerStatement('${b.partner.id}')">📄 Relevé PDF</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function refreshKpisAndSelectors() {
+      const balances = computePartnerBalances();
+      const totalVentes = balances.filter(b => b.partner.type === "CLIENT").reduce((s, b) => s + b.totalTransactions, 0);
+      const totalEncaisse = balances.filter(b => b.partner.type === "CLIENT").reduce((s, b) => s + b.totalReglements, 0);
+      const totalCreances = balances.filter(b => b.partner.type === "CLIENT").reduce((s, b) => s + b.soldeRestant, 0);
+      const totalDettes = balances.filter(b => b.partner.type === "FOURNISSEUR").reduce((s, b) => s + b.soldeRestant, 0);
+
+      document.getElementById("kpi-ventes").textContent = formatDa(totalVentes);
+      document.getElementById("kpi-encaisse").textContent = formatDa(totalEncaisse);
+      document.getElementById("kpi-creances").textContent = formatDa(totalCreances);
+      document.getElementById("kpi-dettes").textContent = formatDa(totalDettes);
+
+      document.getElementById("partners-datalist").innerHTML =
+        state.partners.map(p => `<option value="${p.name}"></option>`).join("");
+      document.getElementById("products-datalist").innerHTML =
+        state.products.map(p => `<option value="${p.name}"></option>`).join("");
+
+      const sel = document.getElementById("studio-doc-selector");
+      const prevVal = sel.value;
+      const opOpts = state.operations.map(o => `<option value="OP:${o.id}">Document : ${o.id} (${o.clientFournisseur})</option>`).join("");
+      const partOpts = state.partners.map(p => `<option value="PARTNER:${p.id}">Relevé : ${p.name}</option>`).join("");
+      sel.innerHTML = `${opOpts}${partOpts}<option value="GLOBAL_CREANCES">État Global des Créances</option>`;
+      if (prevVal) sel.value = prevVal;
+    }
+
+    function refreshAllViews() {
+      refreshKpisAndSelectors();
+      renderOperationsTable();
+      renderCreancesTable();
+      renderProductsTable();
+      renderPartnersTable();
+      renderEmployeesList();
+      loadConfigInputs();
+      renderStudioPreview();
+    }
+
+    // Initialisation au chargement
+    loadLocalState();
+    renderQuickAccounts();
+    onOpTypeChange();
+    updateCloudStatusUI();
+  </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidProductCatalog(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+             data.reference is string && data.reference.size() <= 100 &&
+             data.barcode is string && data.barcode.size() <= 100 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.unit is string && data.unit.size() >= 1 && data.unit.size() <= 30 &&
+             data.defaultUnitPrice is number && data.defaultUnitPrice >= 0 &&
+             data.prixAchatMoyen is number && data.prixAchatMoyen >= 0 &&
+             data.stockActuel is number &&
+             data.seuilAlerte is number && data.seuilAlerte >= 0 &&
+             data.isArticleEclate is bool &&
+             data.isArticleKit is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidArticleComposition(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.parentProductId is string && data.parentProductId.size() >= 1 && data.parentProductId.size() <= 128 &&
+             data.componentName is string && data.componentName.size() >= 1 && data.componentName.size() <= 200 &&
+             data.quantite is number && data.quantite > 0 &&
+             data.prixUnitaireEstime is number && data.prixUnitaireEstime >= 0 &&
+             data.unit is string && data.unit.size() >= 1 && data.unit.size() <= 30 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPartner(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+             data.type is string && data.type.size() <= 30 && (data.type == 'CLIENT' || data.type == 'FOURNISSEUR') &&
+             data.phone is string && data.phone.size() <= 60 &&
+             data.address is string && data.address.size() <= 300 &&
+             data.solde is number &&
+             data.notes is string && data.notes.size() <= 1000 &&
+             data.rc is string && data.rc.size() <= 100 &&
+             data.articleImposition is string && data.articleImposition.size() <= 100 &&
+             data.nif is string && data.nif.size() <= 100 &&
+             data.nis is string && data.nis.size() <= 100 &&
+             data.rib is string && data.rib.size() <= 120 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCommercialOperation(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.dateTime is number && data.dateTime > 0 &&
+             data.typeOperation is string && data.typeOperation.size() >= 1 && data.typeOperation.size() <= 50 &&
+             data.clientFournisseur is string && data.clientFournisseur.size() >= 1 && data.clientFournisseur.size() <= 200 &&
+             data.montantVerse is number && data.montantVerse >= 0 &&
+             data.montantTotalTtc is number && data.montantTotalTtc >= 0 &&
+             data.modeReglement is string && data.modeReglement.size() <= 60 &&
+             data.vendeur is string && data.vendeur.size() <= 150 &&
+             data.notes is string && data.notes.size() <= 1000 &&
+             data.appliquerTva is bool &&
+             data.tauxTva is number && data.tauxTva >= 0 &&
+             data.statut is string && data.statut.size() >= 1 && data.statut.size() <= 60 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidOperationLine(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.idOperation is string && data.idOperation.size() >= 1 && data.idOperation.size() <= 128 &&
+             data.produit is string && data.produit.size() >= 1 && data.produit.size() <= 200 &&
+             data.quantite is number && data.quantite > 0 &&
+             data.prixUnitaire is number && data.prixUnitaire >= 0 &&
+             data.parentArticle is string && data.parentArticle.size() <= 200 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidStockMovement(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.productId is string && data.productId.size() >= 1 && data.productId.size() <= 128 &&
+             data.productName is string && data.productName.size() >= 1 && data.productName.size() <= 200 &&
+             data.type is string && data.type.size() <= 30 && (data.type == 'ENTREE' || data.type == 'SORTIE' || data.type == 'AJUSTEMENT') &&
+             data.quantity is number && data.quantity >= 0 &&
+             data.previousStock is number &&
+             data.newStock is number &&
+             data.unit is string && data.unit.size() >= 1 && data.unit.size() <= 30 &&
+             data.operationId is string && data.operationId.size() <= 128 &&
+             data.partnerName is string && data.partnerName.size() <= 200 &&
+             data.reason is string && data.reason.size() <= 500 &&
+             data.timestamp is number && data.timestamp > 0 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidEmployee(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 150 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 150 &&
+             data.password is string && data.password.size() >= 3 && data.password.size() <= 150 &&
+             data.role is string && data.role.size() <= 30 &&
+             (data.role == 'ADMIN' || data.role == 'GERANT' || data.role == 'VENDEUR' || data.role == 'CAISSIER') &&
+             data.isActive is bool &&
+             data.canModifyBon is bool &&
+             data.canDeleteBon is bool &&
+             data.canModifyFacture is bool &&
+             data.canDeleteFacture is bool &&
+             data.canModifyCreance is bool &&
+             data.canDeleteCreance is bool &&
+             data.canManageEmployees is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /products/{productId} {
+      allow get: if isSignedIn() && isValidId(productId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(productId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'reference', 'barcode', 'category', 'unit',
+                         'defaultUnitPrice', 'prixAchatMoyen', 'stockActuel', 'seuilAlerte',
+                         'isArticleEclate', 'isArticleKit', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'reference', 'barcode', 'category', 'unit',
+                         'defaultUnitPrice', 'prixAchatMoyen', 'stockActuel', 'seuilAlerte',
+                         'isArticleEclate', 'isArticleKit', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidProductCatalog(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(productId) &&
+                       isValidProductCatalog(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'reference', 'barcode', 'category', 'unit',
+                         'defaultUnitPrice', 'prixAchatMoyen', 'stockActuel', 'seuilAlerte',
+                         'isArticleEclate', 'isArticleKit', 'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(productId) && existing().userId == request.auth.uid;
+    }
+
+    match /article_compositions/{compositionId} {
+      allow get: if isSignedIn() && isValidId(compositionId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(compositionId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'parentProductId', 'componentName', 'quantite',
+                         'prixUnitaireEstime', 'unit', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'parentProductId', 'componentName', 'quantite',
+                         'prixUnitaireEstime', 'unit', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidArticleComposition(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(compositionId) &&
+                       isValidArticleComposition(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'parentProductId', 'componentName', 'quantite',
+                         'prixUnitaireEstime', 'unit', 'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(compositionId) && existing().userId == request.auth.uid;
+    }
+
+    match /partners/{partnerId} {
+      allow get: if isSignedIn() && isValidId(partnerId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(partnerId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'type', 'phone', 'address', 'solde',
+                         'notes', 'rc', 'articleImposition', 'nif', 'nis', 'rib',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'type', 'phone', 'address', 'solde',
+                         'notes', 'rc', 'articleImposition', 'nif', 'nis', 'rib',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidPartner(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(partnerId) &&
+                       isValidPartner(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'type', 'phone', 'address', 'solde',
+                         'notes', 'rc', 'articleImposition', 'nif', 'nis', 'rib',
+                         'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(partnerId) && existing().userId == request.auth.uid;
+    }
+
+    match /operations/{operationId} {
+      allow get: if isSignedIn() && isValidId(operationId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(operationId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'dateTime', 'typeOperation', 'clientFournisseur',
+                         'montantVerse', 'montantTotalTtc', 'modeReglement', 'vendeur',
+                         'notes', 'appliquerTva', 'tauxTva', 'statut', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'dateTime', 'typeOperation', 'clientFournisseur',
+                         'montantVerse', 'montantTotalTtc', 'modeReglement', 'vendeur',
+                         'notes', 'appliquerTva', 'tauxTva', 'statut', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidCommercialOperation(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(operationId) &&
+                       isValidCommercialOperation(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'dateTime', 'typeOperation', 'clientFournisseur',
+                         'montantVerse', 'montantTotalTtc', 'modeReglement', 'vendeur',
+                         'notes', 'appliquerTva', 'tauxTva', 'statut', 'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(operationId) && existing().userId == request.auth.uid;
+    }
+
+    match /operation_lines/{lineId} {
+      allow get: if isSignedIn() && isValidId(lineId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(lineId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'idOperation', 'produit', 'quantite',
+                         'prixUnitaire', 'parentArticle', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'idOperation', 'produit', 'quantite',
+                         'prixUnitaire', 'parentArticle', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidOperationLine(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(lineId) &&
+                       isValidOperationLine(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'idOperation', 'produit', 'quantite',
+                         'prixUnitaire', 'parentArticle', 'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(lineId) && existing().userId == request.auth.uid;
+    }
+
+    match /stock_movements/{movementId} {
+      allow get: if isSignedIn() && isValidId(movementId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(movementId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'productId', 'productName', 'type', 'quantity',
+                         'previousStock', 'newStock', 'unit', 'operationId',
+                         'partnerName', 'reason', 'timestamp', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'productId', 'productName', 'type', 'quantity',
+                         'previousStock', 'newStock', 'unit', 'operationId',
+                         'partnerName', 'reason', 'timestamp', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidStockMovement(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(movementId) &&
+                       isValidStockMovement(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'productId', 'productName', 'type', 'quantity',
+                         'previousStock', 'newStock', 'unit', 'operationId',
+                         'partnerName', 'reason', 'timestamp', 'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(movementId) && existing().userId == request.auth.uid;
+    }
+
+    match /employees/{employeeId} {
+      allow get: if isSignedIn() && isValidId(employeeId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() &&
+                       isValidId(employeeId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'name', 'email', 'password', 'role', 'isActive',
+                         'canModifyBon', 'canDeleteBon', 'canModifyFacture', 'canDeleteFacture',
+                         'canModifyCreance', 'canDeleteCreance', 'canManageEmployees',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'name', 'email', 'password', 'role', 'isActive',
+                         'canModifyBon', 'canDeleteBon', 'canModifyFacture', 'canDeleteFacture',
+                         'canModifyCreance', 'canDeleteCreance', 'canManageEmployees',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidEmployee(incoming());
+      allow update: if isSignedIn() &&
+                       isValidId(employeeId) &&
+                       isValidEmployee(incoming()) &&
+                       existing().userId == request.auth.uid &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'name', 'email', 'password', 'role', 'isActive',
+                         'canModifyBon', 'canDeleteBon', 'canModifyFacture', 'canDeleteFacture',
+                         'canModifyCreance', 'canDeleteCreance', 'canManageEmployees',
+                         'updatedAt'
+                       ]);
+      allow delete: if isSignedIn() && isValidId(employeeId) && existing().userId == request.auth.uid;
+    }
+  }
+}

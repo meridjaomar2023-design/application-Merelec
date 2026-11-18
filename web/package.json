@@ -1,0 +1,25 @@
+{
+  "name": "merelec-erp-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Version Web React + TypeScript de l'application Android Kotlin Merélec ERP (connectée au même projet Firebase & Cloud Firestore)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 8080 --host 0.0.0.0",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 8080 --host 0.0.0.0"
+  },
+  "dependencies": {
+    "firebase": "^10.14.1",
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix Gestion Merelec",
+  "description": "Application Gestion Merelec pour le suivi opérationnel de terrain des bons de livraison, achats et règlements en Dinars Algériens (DA).",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

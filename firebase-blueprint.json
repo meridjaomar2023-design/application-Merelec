@@ -1,0 +1,549 @@
+{
+  "entities": {
+    "ProductCatalog": {
+      "title": "ProductCatalog",
+      "description": "Catalogue article and real-time stock item shared across terminals.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Product designation / name."
+        },
+        "reference": {
+          "type": "string",
+          "description": "Internal SKU / reference code."
+        },
+        "barcode": {
+          "type": "string",
+          "description": "EAN/QR barcode string."
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measure (U, M, Rlx, Ens, etc.)."
+        },
+        "defaultUnitPrice": {
+          "type": "number",
+          "description": "Default selling unit price in DA."
+        },
+        "prixAchatMoyen": {
+          "type": "number",
+          "description": "Average purchase price in DA."
+        },
+        "stockActuel": {
+          "type": "number",
+          "description": "Current real-time quantity in stock."
+        },
+        "seuilAlerte": {
+          "type": "number",
+          "description": "Low-stock alert threshold."
+        },
+        "isArticleEclate": {
+          "type": "boolean",
+          "description": "True if article explodes into components at entry."
+        },
+        "isArticleKit": {
+          "type": "boolean",
+          "description": "True if commercial kit with fixed pack price and auto component stock deduction."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "reference",
+        "barcode",
+        "category",
+        "unit",
+        "defaultUnitPrice",
+        "prixAchatMoyen",
+        "stockActuel",
+        "seuilAlerte",
+        "isArticleEclate",
+        "isArticleKit",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ArticleComposition": {
+      "title": "ArticleComposition",
+      "description": "Child component link for an Article Kit or Article Eclate.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "parentProductId": {
+          "type": "string",
+          "description": "Document ID of the parent composite product."
+        },
+        "componentName": {
+          "type": "string",
+          "description": "Designation of the child component product."
+        },
+        "quantite": {
+          "type": "number",
+          "description": "Quantity of child component per 1 parent unit."
+        },
+        "prixUnitaireEstime": {
+          "type": "number",
+          "description": "Estimated unit price of the child component in DA."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measure."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "parentProductId",
+        "componentName",
+        "quantite",
+        "prixUnitaireEstime",
+        "unit",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Partner": {
+      "title": "Partner",
+      "description": "Client or Supplier directory record with real-time balance (solde).",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Client or supplier name / raison sociale."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["CLIENT", "FOURNISSEUR"],
+          "description": "Partner type."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address / city."
+        },
+        "solde": {
+          "type": "number",
+          "description": "Current outstanding balance in DA."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes about the partner."
+        },
+        "rc": {
+          "type": "string",
+          "description": "Registre de Commerce number."
+        },
+        "articleImposition": {
+          "type": "string",
+          "description": "Article d'imposition number."
+        },
+        "nif": {
+          "type": "string",
+          "description": "NIF fiscal number."
+        },
+        "nis": {
+          "type": "string",
+          "description": "NIS statistical number."
+        },
+        "rib": {
+          "type": "string",
+          "description": "Bank RIB."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "type",
+        "phone",
+        "address",
+        "solde",
+        "notes",
+        "rc",
+        "articleImposition",
+        "nif",
+        "nis",
+        "rib",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CommercialOperation": {
+      "title": "CommercialOperation",
+      "description": "Sale, Invoice (Facture), Delivery Note (BL), Order, Quote, Credit Note, or Payment.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "dateTime": {
+          "type": "number",
+          "description": "Operation timestamp in epoch milliseconds."
+        },
+        "typeOperation": {
+          "type": "string",
+          "description": "OperationType enum name (BL_CLIENT, FACTURE, DEVIS, etc.)."
+        },
+        "clientFournisseur": {
+          "type": "string",
+          "description": "Partner name (Client or Supplier)."
+        },
+        "montantVerse": {
+          "type": "number",
+          "description": "Amount paid in DA."
+        },
+        "montantTotalTtc": {
+          "type": "number",
+          "description": "Total TTC amount of the operation in DA."
+        },
+        "modeReglement": {
+          "type": "string",
+          "description": "Payment method (Especes, Cheque, Virement, CCP)."
+        },
+        "vendeur": {
+          "type": "string",
+          "description": "Seller / operator identifier or email."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Operation notes."
+        },
+        "appliquerTva": {
+          "type": "boolean",
+          "description": "Whether VAT is applied."
+        },
+        "tauxTva": {
+          "type": "number",
+          "description": "VAT percentage rate."
+        },
+        "statut": {
+          "type": "string",
+          "description": "Document status (Valide, Brouillon, Paye, Converti en Facture)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "dateTime",
+        "typeOperation",
+        "clientFournisseur",
+        "montantVerse",
+        "montantTotalTtc",
+        "modeReglement",
+        "vendeur",
+        "notes",
+        "appliquerTva",
+        "tauxTva",
+        "statut",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OperationLine": {
+      "title": "OperationLine",
+      "description": "Individual product line item belonging to a CommercialOperation.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "idOperation": {
+          "type": "string",
+          "description": "Document ID of the parent CommercialOperation."
+        },
+        "produit": {
+          "type": "string",
+          "description": "Product designation."
+        },
+        "quantite": {
+          "type": "number",
+          "description": "Quantity sold or delivered."
+        },
+        "prixUnitaire": {
+          "type": "number",
+          "description": "Unit price in DA."
+        },
+        "parentArticle": {
+          "type": "string",
+          "description": "Parent Article Eclate name if this line is a child component (fils)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "idOperation",
+        "produit",
+        "quantite",
+        "prixUnitaire",
+        "parentArticle",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "StockMovement": {
+      "title": "StockMovement",
+      "description": "Real-time stock movement record (entry, exit, inventory adjustment).",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID."
+        },
+        "productId": {
+          "type": "string",
+          "description": "ProductCatalog document ID."
+        },
+        "productName": {
+          "type": "string",
+          "description": "Product designation."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["ENTREE", "SORTIE", "AJUSTEMENT"],
+          "description": "Movement type."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Movement quantity."
+        },
+        "previousStock": {
+          "type": "number",
+          "description": "Stock quantity before movement."
+        },
+        "newStock": {
+          "type": "number",
+          "description": "Stock quantity after movement."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measure."
+        },
+        "operationId": {
+          "type": "string",
+          "description": "Associated operation ID if triggered by a BL/Facture."
+        },
+        "partnerName": {
+          "type": "string",
+          "description": "Associated client or supplier name."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Movement reason or note."
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Movement epoch milliseconds."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "productId",
+        "productName",
+        "type",
+        "quantity",
+        "previousStock",
+        "newStock",
+        "unit",
+        "operationId",
+        "partnerName",
+        "reason",
+        "timestamp",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Authorized employee account with email/password credentials and granular permissions for Bon, Facture, and Creance.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated company owner UID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Employee full name / seller label."
+        },
+        "email": {
+          "type": "string",
+          "description": "Employee login email."
+        },
+        "password": {
+          "type": "string",
+          "description": "Employee login password."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["ADMIN", "GERANT", "VENDEUR", "CAISSIER"],
+          "description": "Employee role profile."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this employee is authorized to access the application."
+        },
+        "canModifyBon": {
+          "type": "boolean",
+          "description": "Permission to modify delivery notes (BL), orders (BC), and quotes (Devis)."
+        },
+        "canDeleteBon": {
+          "type": "boolean",
+          "description": "Permission to delete delivery notes (BL), orders (BC), and quotes (Devis)."
+        },
+        "canModifyFacture": {
+          "type": "boolean",
+          "description": "Permission to modify invoices (Factures) and credit notes (Avoirs)."
+        },
+        "canDeleteFacture": {
+          "type": "boolean",
+          "description": "Permission to delete invoices (Factures) and credit notes (Avoirs)."
+        },
+        "canModifyCreance": {
+          "type": "boolean",
+          "description": "Permission to modify receivables/payables (Creances), balances (Solde), and payments (Reglements)."
+        },
+        "canDeleteCreance": {
+          "type": "boolean",
+          "description": "Permission to delete or reset receivables/payables (Creances) and payments (Reglements)."
+        },
+        "canManageEmployees": {
+          "type": "boolean",
+          "description": "Permission to manage authorized employees and their rights."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "email",
+        "password",
+        "role",
+        "isActive",
+        "canModifyBon",
+        "canDeleteBon",
+        "canModifyFacture",
+        "canDeleteFacture",
+        "canModifyCreance",
+        "canDeleteCreance",
+        "canManageEmployees",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/ProductCatalog" },
+      "description": "Catalogue products and real-time stock quantities."
+    },
+    "/article_compositions/{compositionId}": {
+      "schema": { "$ref": "#/entities/ArticleComposition" },
+      "description": "Child component definitions for Article Kit and Article Eclate."
+    },
+    "/partners/{partnerId}": {
+      "schema": { "$ref": "#/entities/Partner" },
+      "description": "Clients and suppliers directory with balance (solde)."
+    },
+    "/operations/{operationId}": {
+      "schema": { "$ref": "#/entities/CommercialOperation" },
+      "description": "Sales, invoices, delivery notes, quotes, and payments."
+    },
+    "/operation_lines/{lineId}": {
+      "schema": { "$ref": "#/entities/OperationLine" },
+      "description": "Line items belonging to commercial operations."
+    },
+    "/stock_movements/{movementId}": {
+      "schema": { "$ref": "#/entities/StockMovement" },
+      "description": "Stock movement audit trail."
+    },
+    "/employees/{employeeId}": {
+      "schema": { "$ref": "#/entities/Employee" },
+      "description": "Authorized employees with email/password access and granular permissions."
+    }
+  }
+}

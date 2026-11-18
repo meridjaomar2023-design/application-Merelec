@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="shared_exports" path="exports/" />
+    <cache-path name="shared_backups" path="backups/" />
+    <cache-path name="shared_documents" path="documents/" />
+    <files-path name="files_documents" path="documents/" />
+</paths>

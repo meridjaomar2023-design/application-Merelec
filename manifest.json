@@ -1,0 +1,22 @@
+{
+  "name": "Merélec ERP — Gestion Commerciale, Bons, Créances & Stock",
+  "short_name": "Merélec ERP",
+  "description": "Application PWA Desktop & Mobile (Windows, macOS, Android) synchronisée avec Cloud Firestore.",
+  "lang": "fr-FR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0f1c36",
+  "theme_color": "#0284c7",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-512.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
